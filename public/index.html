@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RU-Smart | Aluno</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+<div id="toast-container"></div>
+
+<!-- LOGIN -->
+<div class="login-screen" id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="logo-icon-big">🎓</div>
+      <h1>RU-Smart</h1>
+      <p>Restaurante Universitário Inteligente</p>
+    </div>
+    <div class="login-field">
+      <label>Usuário <span style="color:var(--text2);font-weight:400">(nome+sobrenome, sem espaço)</span></label>
+      <input type="text" id="login-usuario" placeholder="Ex: gabrielalmeida" autocomplete="username" />
+    </div>
+    <div class="login-field">
+      <label>Senha</label>
+      <input type="password" id="login-senha" placeholder="••••••••" autocomplete="current-password" />
+    </div>
+    <button class="login-btn" onclick="fazerLogin()">Entrar no RU-Smart</button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<!-- MODAL: Adicionar Crédito -->
+<div class="modal-overlay" id="modal-credito">
+  <div class="modal">
+    <h3>💳 Adicionar Crédito</h3>
+    <p style="font-size:0.82rem;color:var(--text2);margin-bottom:16px;">Saldo só é debitado quando o QR Code é lido no RU.</p>
+    <div style="margin-bottom:14px;">
+      <div style="font-size:0.82rem;color:var(--text2);margin-bottom:8px;font-weight:600;">FORMA DE PAGAMENTO</div>
+      <div class="payment-methods">
+        <button class="payment-method-btn active" onclick="selecionarPagamento('pix',this)"><span class="pm-icon">📱</span>PIX</button>
+        <button class="payment-method-btn" onclick="selecionarPagamento('dinheiro',this)"><span class="pm-icon">💵</span>Dinheiro</button>
+        <button class="payment-method-btn" onclick="selecionarPagamento('credito',this)"><span class="pm-icon">💳</span>Cartão Crédito</button>
+        <button class="payment-method-btn" onclick="selecionarPagamento('debito',this)"><span class="pm-icon">🏦</span>Cartão Débito</button>
+      </div>
+    </div>
+    <div style="margin-bottom:14px;">
+      <div style="font-size:0.82rem;color:var(--text2);margin-bottom:8px;font-weight:600;">SUGESTÃO RÁPIDA</div>
+      <div class="valor-sugestoes">
+        <button class="valor-sugestao" onclick="setSugestao(5,this)">R$ 5</button>
+        <button class="valor-sugestao" onclick="setSugestao(10,this)">R$ 10</button>
+        <button class="valor-sugestao" onclick="setSugestao(20,this)">R$ 20</button>
+        <button class="valor-sugestao" onclick="setSugestao(50,this)">R$ 50</button>
+        <button class="valor-sugestao" onclick="setSugestao(100,this)">R$ 100</button>
+      </div>
+    </div>
+    <div class="input-group">
+      <label>Valor personalizado (mínimo R$ 1,00)</label>
+      <input type="number" id="input-credito" min="1" step="0.50" placeholder="Ex: 15.00" oninput="limparSugestoes()" />
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="fecharModal('modal-credito')">Cancelar</button>
+      <button class="btn btn-primary" onclick="adicionarCredito()">✅ Confirmar Recarga</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Cancelar Agendamento -->
+<div class="modal-overlay" id="modal-cancelar">
+  <div class="modal">
+    <h3>⚠️ Cancelar Agendamento</h3>
+    <p style="font-size:0.9rem;color:var(--text2);margin-bottom:8px;" id="modal-cancelar-info"></p>
+    <p style="font-size:0.8rem;padding:10px;border-radius:var(--radius);" id="modal-cancelar-aviso"></p>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="fecharModal('modal-cancelar')">Voltar</button>
+      <button class="btn btn-danger" onclick="confirmarCancelamento()">🗑️ Cancelar Refeição</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Confirmar Agendamento -->
+<div class="modal-overlay" id="modal-confirmar-ag">
+  <div class="modal">
+    <h3>📅 Confirmar Agendamento</h3>
+    <p style="font-size:0.9rem;color:var(--text2);margin-bottom:16px;" id="modal-confirmar-info"></p>
+    <div style="background:var(--bg3);border-radius:var(--radius);padding:12px;font-size:0.82rem;color:var(--text2);">
+      💡 O crédito só é descontado ao passar o QR Code no RU.
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="fecharModal('modal-confirmar-ag')">Cancelar</button>
+      <button class="btn btn-primary" onclick="confirmarAgendamento()">✅ Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Saque -->
+<div class="modal-overlay" id="modal-saque">
+  <div class="modal">
+    <h3>🏧 Solicitar Saque</h3>
+    <div class="saque-info">⚠️ <strong>Processo manual</strong> — Dirija-se à secretaria do RU com seu documento.</div>
+    <div class="input-group">
+      <label>Valor a sacar — disponível: <span id="saque-disponivel">—</span></label>
+      <input type="number" id="input-saque" min="1" step="0.50" placeholder="Ex: 10.00" />
+    </div>
+    <div class="input-group">
+      <label>Chave PIX para recebimento (opcional)</label>
+      <input type="text" id="input-saque-pix" placeholder="CPF, e-mail ou telefone" />
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="fecharModal('modal-saque')">Cancelar</button>
+      <button class="btn btn-warning" onclick="solicitarSaque()">🏧 Solicitar Saque</button>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app-wrapper" id="app-wrapper" style="display:none">
+  <header class="header">
+    <div class="header-logo">
+      <div class="logo-icon">🎓</div>
+      <div><h1>RU-Smart</h1><div class="header-sub">Restaurante Universitário Inteligente</div></div>
+    </div>
+    <div class="header-right">
+      <div class="ws-status"><div class="ws-dot"></div><span class="ws-text">Conectando...</span></div>
+      <button class="btn-logout" onclick="fazerLogout()">Sair</button>
+    </div>
+  </header>
+
+  <!-- Perfil -->
+  <div class="profile-card">
+    <div class="avatar" id="avatar-inicial">?</div>
+    <div class="profile-info">
+      <h2 id="aluno-nome">—</h2>
+      <div class="matricula" id="aluno-matricula">—</div>
+      <div id="aluno-nivel-badge"></div>
+      <div id="aluno-residente-badge"></div>
+    </div>
+    <div class="creditos-display">
+      <div class="creditos-valor" id="aluno-creditos">R$ —</div>
+      <div class="creditos-label" id="creditos-label">Saldo disponível</div>
+      <div style="display:flex;gap:8px;margin-top:10px;justify-content:flex-end;flex-wrap:wrap;">
+        <button class="btn btn-primary" style="font-size:0.78rem;padding:7px 12px;" onclick="abrirModal('modal-credito')">➕ Recarregar</button>
+        <button class="btn btn-warning" style="font-size:0.78rem;padding:7px 12px;" onclick="abrirModalSaque()">🏧 Sacar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Streak -->
+  <div class="streak-bar">
+    <div class="streak-icon">🔥</div>
+    <div class="streak-text">
+      <strong id="streak-label">Sequência: 0 / 12</strong>
+      <span>A cada 12 refeições seguidas, você ganha R$ 2,50 de bônus!</span>
+    </div>
+    <div class="streak-dots" id="streak-dots"></div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('tab-calendario',this)">📅 Agendar</button>
+    <button class="tab-btn" onclick="switchTab('tab-historico',this)">📋 Agendamentos</button>
+    <button class="tab-btn" onclick="switchTab('tab-cardapio',this)">🍽️ Cardápio</button>
+    <button class="tab-btn" onclick="switchTab('tab-stats',this)">📊 Estatísticas</button>
+    <button class="tab-btn" onclick="switchTab('tab-qrcode',this)">🔑 QR Code</button>
+    <button class="tab-btn" onclick="switchTab('tab-enquetes',this)">🗳️ Enquetes</button>
+  </div>
+
+  <!-- Tab: Agendar -->
+  <div class="tab-content active" id="tab-calendario">
+    <div class="card">
+      <div class="card-title"><span>📅</span> Próximos 7 dias — Solicitar Refeição</div>
+      <p style="font-size:0.82rem;color:var(--text2);margin-bottom:16px;">
+        Agendamentos devem ser feitos com <strong>pelo menos 1 dia de antecedência</strong>. Domingo o RU não abre; sábado só há almoço.
+      </p>
+      <div class="calendario-grid" id="calendario-grid"></div>
+    </div>
+  </div>
+
+  <!-- Tab: Agendamentos -->
+  <div class="tab-content" id="tab-historico">
+    <div class="card">
+      <div class="card-title"><span>📋</span> Meus Agendamentos</div>
+      <div class="ag-list" id="ag-list">
+        <div class="empty-state"><div class="empty-icon">📭</div><p>Nenhum agendamento ainda.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab: Cardápio -->
+  <div class="tab-content" id="tab-cardapio">
+    <div class="card">
+      <div class="card-title"><span>🍽️</span> Cardápio da Semana</div>
+      <div id="cardapio-list"></div>
+    </div>
+  </div>
+
+  <!-- Tab: Estatísticas -->
+  <div class="tab-content" id="tab-stats">
+    <div class="grid-3">
+      <div class="metric-card almoco-m"><div class="metric-value" id="stat-total">0</div><div class="metric-label">Refeições Agendadas</div></div>
+      <div class="metric-card consumido"><div class="metric-value" id="stat-consumidas">0</div><div class="metric-label">Consumidas ✅</div></div>
+      <div class="metric-card previsao"><div class="metric-value" id="stat-streak">0</div><div class="metric-label">Streak Atual 🔥</div></div>
+    </div>
+    <div class="card" style="margin-top:16px;">
+      <div class="card-title"><span>🏆</span> Progresso de Nível</div>
+      <div id="nivel-progresso-info" style="margin-bottom:12px;"></div>
+      <div class="progress-track" style="height:14px;"><div class="progress-fill fill-high" id="nivel-progress-bar" style="width:0%"></div></div>
+      <div style="display:flex;justify-content:space-between;margin-top:10px;flex-wrap:wrap;gap:4px;">
+        <span style="font-size:0.72rem;color:var(--text2)">🍽️ Faminto (0)</span>
+        <span style="font-size:0.72rem;color:var(--text2)">🧑‍🍳 Frequentador (21)</span>
+        <span style="font-size:0.72rem;color:var(--text2)">⭐ Veterano (51)</span>
+        <span style="font-size:0.72rem;color:var(--text2)">🔥 Lendário (101)</span>
+        <span style="font-size:0.72rem;color:var(--text2)">💎 Marmiteiro (201)</span>
+      </div>
+    </div>
+    <div class="card" style="margin-top:16px;">
+      <div class="card-title"><span>🏆</span> Ranking — Top Comilões do RU</div>
+      <div id="ranking-list" style="display:flex;flex-direction:column;gap:6px;"></div>
+    </div>
+    <div class="card" style="margin-top:16px;">
+      <div class="card-title"><span>🎁</span> Benefícios por Nível</div>
+      <div style="display:flex;flex-direction:column;gap:10px;font-size:0.85rem;color:var(--text2);">
+        <div>🍽️ <strong style="color:#cd7f32">Faminto:</strong> Acesso ao sistema de agendamento</div>
+        <div>🧑‍🍳 <strong style="color:#94a3b8">Frequentador:</strong> Voto em enquetes vale <strong style="color:var(--accent)">2x</strong></div>
+        <div>⭐ <strong style="color:#f59e0b">Veterano:</strong> Voto vale <strong style="color:var(--accent)">3x</strong></div>
+        <div>🔥 <strong style="color:#ef4444">Lendário:</strong> Voto vale <strong style="color:var(--accent)">4x</strong></div>
+        <div>💎 <strong style="color:#a78bfa">Marmiteiro:</strong> Voto vale <strong style="color:var(--accent)">5x</strong> + pode sugerir alimentos (1x/semana)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab: QR Code -->
+  <div class="tab-content" id="tab-qrcode">
+    <div class="card">
+      <div class="card-title"><span>🔑</span> Meu QR Code do RU</div>
+      <div class="qr-container">
+        <div class="qr-code-display"><div id="qrcode-display"></div></div>
+        <div class="qr-info">
+          <strong id="qr-nome-label">—</strong>
+          <span id="qr-matricula-label">—</span><br>
+          <span style="font-size:0.75rem;margin-top:8px;display:block;">Apresente no RU para confirmar o consumo.</span>
+          <span style="font-size:0.72rem;color:var(--error);display:block;margin-top:4px;">⚠️ Não compartilhe seu QR Code.</span>
+        </div>
+        <div style="text-align:center;padding:12px;background:var(--bg3);border-radius:var(--radius);font-size:0.8rem;color:var(--text2);width:100%;">
+          ☀️ Almoço = <strong style="color:var(--accent)">R$ 2,50</strong> &nbsp;|&nbsp; 🌙 Janta = <strong style="color:var(--accent)">R$ 2,00</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab: Enquetes -->
+  <div class="tab-content" id="tab-enquetes">
+    <!-- Bloco de sugestão (só Marmiteiro vê ativo) -->
+    <div class="card" id="bloco-sugestao" style="margin-bottom:16px;">
+      <div class="card-title"><span>💡</span> Enviar Sugestão de Alimento</div>
+      <div id="sugestao-status-msg"></div>
+      <div id="minhas-sugestoes-list" style="margin-bottom:8px;"></div>
+      <div id="sugestao-form">
+        <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:var(--radius);padding:10px;font-size:0.8rem;color:var(--text2);margin-bottom:10px;">
+          ⚠️ Enviar uma sugestão <strong style="color:var(--error)">desconta 20 refeições</strong> do seu total (diminuindo seu progresso de nível).<br>
+          💡 Você pode cancelar a sugestão para ter suas refeições de volta.
+        </div>
+        <div class="input-group" style="margin-bottom:10px;">
+          <label>Sua sugestão <span style="font-size:0.75rem;color:var(--text2)">(apenas 💎 Marmiteiro · custa 20 refeições)</span></label>
+          <input type="text" id="input-sugestao" placeholder="Ex: Adicionar buchada de carneiro na quinta" maxlength="120" />
+        </div>
+        <button class="btn btn-primary" id="btn-sugestao" onclick="enviarSugestao()">💡 Enviar Sugestão (-20 refeições)</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span>🗳️</span> Enquetes da Comunidade</div>
+      <p style="font-size:0.82rem;color:var(--text2);margin-bottom:16px;">
+        Todos podem votar! Quanto maior seu nível, mais peso tem seu voto.
+      </p>
+      <div id="enquetes-list"><div class="empty-state"><div class="empty-icon">🗳️</div><p>Carregando enquetes...</p></div></div>
+    </div>
+  </div>
+
+</div><!-- /app-wrapper -->
+
+<script src="script.js"></script>
+<script>
+let ALUNO_ID = null;
+let estadoAluno = null;
+let dbEstado = null;
+let agPendenteCancelamento = null;
+let agPendenteConfirmacao = null;
+let metodoPagamento = 'pix';
+
+// ─── Login ─────────────────────────────────────────────────────────────────────
+function fazerLogin() {
+  const usuario = document.getElementById('login-usuario').value.trim().toLowerCase();
+  const senha = document.getElementById('login-senha').value;
+  const errEl = document.getElementById('login-error');
+  errEl.textContent = '';
+  if (!usuario||!senha) { errEl.textContent='Preencha todos os campos.'; return; }
+  enviarWS({ type:'LOGIN', usuario, senha });
+}
+
+function handleLoginResposta(data) {
+  if (data.type==='LOGIN_OK') {
+    ALUNO_ID = data.alunoId;
+    estadoAluno = data.aluno;
+    dbEstado = data.db;
+    document.getElementById('login-screen').classList.add('hidden');
+    document.getElementById('app-wrapper').style.display='block';
+    renderPerfil(); renderCalendario(); renderHistorico();
+    renderStats(); renderQRCode(); renderEnquetes(); renderCardapio();
+  } else {
+    document.getElementById('login-error').textContent = data.message||'Usuário ou senha incorretos.';
+  }
+}
+
+function fazerLogout() {
+  ALUNO_ID=null; estadoAluno=null; dbEstado=null;
+  document.getElementById('login-screen').classList.remove('hidden');
+  document.getElementById('app-wrapper').style.display='none';
+  document.getElementById('login-usuario').value='';
+  document.getElementById('login-senha').value='';
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('login-senha').addEventListener('keydown', e=>{ if(e.key==='Enter') fazerLogin(); });
+  conectarWS(handleMensagem, ()=>{});
+});
+
+// ─── Handler WS ────────────────────────────────────────────────────────────────
+function handleMensagem(data) {
+  if (data.type==='LOGIN_OK'||data.type==='LOGIN_ERRO') { handleLoginResposta(data); return; }
+  switch(data.type) {
+    case 'INIT':
+      if(ALUNO_ID&&data.data?.alunos?.[ALUNO_ID]){
+        estadoAluno=data.data.alunos[ALUNO_ID]; dbEstado=data.data;
+        renderPerfil();renderCalendario();renderHistorico();renderStats();renderEnquetes();renderCardapio();
+      } break;
+    case 'SUCCESS':
+      showToast(data.message,'success');
+      if(data.agendamento&&estadoAluno){estadoAluno.agendamentos.push(data.agendamento);renderCalendario();renderHistorico();}
+      if(data.novoSaldo!==undefined&&estadoAluno){estadoAluno.creditos=data.novoSaldo;renderPerfil();}
+      if(data.aluno){Object.assign(estadoAluno,data.aluno);renderPerfil();renderHistorico();renderStats();renderCalendario();}
+      break;
+    case 'ERROR': showToast(data.message,'error'); break;
+    case 'CREDITO_ADICIONADO':
+      if(data.alunoId===ALUNO_ID){estadoAluno.creditos=data.novoSaldo;renderPerfil();}
+      break;
+    case 'CONSUMO_CONFIRMADO':
+      if(data.aluno?.id===ALUNO_ID){
+        Object.assign(estadoAluno,data.aluno);
+        const ag=estadoAluno.agendamentos.find(a=>a.id===data.agendamentoId);
+        if(ag)ag.status='consumido';
+        renderPerfil();renderHistorico();renderStats();renderCalendario();
+        showToast('Consumo registrado! Boa refeição!','success',5000);
+      } break;
+    case 'AGENDAMENTO_CANCELADO':
+      if(data.alunoId===ALUNO_ID){
+        const ag=estadoAluno.agendamentos.find(a=>a.id===data.agendamentoId);
+        if(ag)ag.status='cancelado';
+        if(data.perdeuStreak)estadoAluno.streakAtual=0;
+        renderCalendario();renderHistorico();renderStats();renderPerfil();
+      } break;
+    case 'STREAK_BONUS':
+      if(data.alunoId===ALUNO_ID){estadoAluno.creditos=data.novoSaldo;renderPerfil();showToast('12 refeições seguidas! Bônus de R$ 2,50 creditado!','success',6000);}
+      break;
+    case 'ENQUETE_UPDATE':
+      if(dbEstado&&data.enquetes){dbEstado.enquetes=data.enquetes;renderEnquetes();}
+      break;
+    case 'SUGESTAO_NOVA':
+      if(dbEstado&&data.sugestoes){dbEstado.sugestoes=data.sugestoes;renderEnquetes();}
+      if(data.aluno&&data.aluno.id===ALUNO_ID){Object.assign(estadoAluno,data.aluno);renderPerfil();renderStats();}
+      break;
+    case 'SUGESTAO_OK':
+      showToast(data.message,'success',5000);
+      if(data.aluno&&estadoAluno){Object.assign(estadoAluno,data.aluno);renderPerfil();renderStats();renderEnquetes();}
+      break;
+    case 'SUGESTAO_CANCELADA':
+      showToast(data.message,'success',4000);
+      if(data.aluno&&estadoAluno){Object.assign(estadoAluno,data.aluno);renderPerfil();renderStats();renderEnquetes();}
+      break;
+    case 'SAQUE_SOLICITADO':
+      if(data.alunoId===ALUNO_ID){estadoAluno.creditos=data.novoSaldo;renderPerfil();showToast('Saque solicitado! Vá à secretaria do RU.','info',5000);}
+      break;
+    case 'CARDAPIO_UPDATE':
+      if(dbEstado&&data.cardapio){dbEstado.cardapio=data.cardapio;renderCardapio();}
+      break;
+  }
+}
+
+// ─── Renders ────────────────────────────────────────────────────────────────────
+function renderPerfil() {
+  if(!estadoAluno)return;
+  const a=estadoAluno;
+  const nivel=getNivel(a.totalConsumidas||0);
+  const ehResidente = a.residente === true;
+  document.getElementById('avatar-inicial').textContent=a.nome.charAt(0).toUpperCase();
+  document.getElementById('aluno-nome').textContent=a.nome;
+  document.getElementById('aluno-matricula').textContent=`Mat: ${a.matricula} · @${a.usuario}`;
+  document.getElementById('aluno-nivel-badge').innerHTML=badgeNivel(nivel.nome);
+  // Badge residente
+  const badgeRes = document.getElementById('aluno-residente-badge');
+  if(badgeRes) badgeRes.innerHTML = ehResidente
+    ? `<span style="display:inline-flex;align-items:center;gap:5px;background:rgba(167,139,250,0.15);color:#a78bfa;border:1px solid rgba(167,139,250,0.4);border-radius:20px;padding:3px 10px;font-size:0.75rem;font-weight:700;margin-top:4px;">🏠 Residente · Refeição Gratuita</span>`
+    : '';
+  // Saldo / créditos — esconde para residente
+  const creditosEl = document.getElementById('aluno-creditos');
+  const labelEl = document.getElementById('creditos-label');
+  if(ehResidente){
+    if(creditosEl) creditosEl.textContent='Gratuito';
+    if(labelEl) labelEl.textContent='Refeições inclusas';
+  } else {
+    if(creditosEl) creditosEl.textContent=formatCredito(a.creditos);
+    if(labelEl) labelEl.textContent='Saldo disponível';
+  }
+  const streak=a.streakAtual||0;
+  document.getElementById('streak-label').textContent=`Sequência: ${streak} / 12`;
+  document.getElementById('streak-dots').innerHTML=renderStreakDots(streak);
+}
+
+function renderCalendario() {
+  const grid=document.getElementById('calendario-grid');
+  if(!grid)return;
+  const dias=getProximos7Dias();
+  const ags=estadoAluno?estadoAluno.agendamentos:[];
+  grid.innerHTML=dias.map(dia=>{
+    const agA=ags.find(a=>a.data===dia.iso&&a.turno==='almoco'&&a.status!=='cancelado');
+    const agJ=ags.find(a=>a.data===dia.iso&&a.turno==='janta'&&a.status!=='cancelado');
+    if(dia.ehDomingo) return `<div class="dia-card domingo"><div class="dia-nome">${dia.nome}</div><div class="dia-num">${dia.num}</div><div style="font-size:0.65rem;color:var(--error);margin-top:6px;">Fechado</div></div>`;
+    return `<div class="dia-card">
+      <div class="dia-nome">${dia.nome}</div>
+      <div class="dia-num">${dia.num}</div>
+      <div class="turno-btns">
+        <button class="turno-btn almoco ${agA?'agendado':''}" onclick="${agA?`pedirCancelamento('${agA.id}','${dia.iso}','Almoço')`:`pedirAgendamento('${dia.iso}','almoco')`}">${agA?'✓ Almoço':'Almoço'}</button>
+        <button class="turno-btn janta ${agJ?'agendado':''} ${dia.ehSabado?'desabilitado':''}" onclick="${(!dia.ehSabado)?(agJ?`pedirCancelamento('${agJ.id}','${dia.iso}','Janta')`:`pedirAgendamento('${dia.iso}','janta')`):''}" ${dia.ehSabado?'title="Sábado: só almoço"':''}>
+          ${dia.ehSabado?'— Janta':(agJ?'✓ Janta':'Janta')}
+        </button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderHistorico() {
+  const list=document.getElementById('ag-list');
+  if(!list||!estadoAluno)return;
+  const ags=[...(estadoAluno.agendamentos||[])].sort((a,b)=>new Date(b.criadoEm)-new Date(a.criadoEm));
+  if(!ags.length){list.innerHTML=`<div class="empty-state"><div class="empty-icon">📭</div><p>Nenhum agendamento.</p></div>`;return;}
+  const tl={almoco:'☀️ Almoço',janta:'🌙 Janta'};
+  list.innerHTML=ags.map(a=>`
+    <div class="ag-item">
+      <div class="ag-item-info">
+        <div class="ag-item-data">${formatarData(a.data)} — ${tl[a.turno]||a.turno}</div>
+        <div class="ag-item-status">Criado ${new Date(a.criadoEm).toLocaleString('pt-BR')}</div>
+      </div>
+      <span class="status-badge status-${a.status}">${a.status}</span>
+      ${a.status==='solicitado'?`<button class="btn btn-danger" style="padding:6px 12px;font-size:0.75rem;" onclick="pedirCancelamento('${a.id}','${a.data}','${a.turno}')">🗑️</button>`:''}
+    </div>`).join('');
+}
+
+function renderCardapio() {
+  const el=document.getElementById('cardapio-list');
+  if(!el)return;
+  const cardapio=dbEstado?.cardapio||{};
+  const diasVis=[];
+  const nomesDias=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  const hoje=hojeLocal();
+  const [hy,hm,hd]=hoje.split('-').map(Number);
+  const hojeBase=new Date(hy,hm-1,hd);
+  for(let i=0;i<7;i++){
+    const d=new Date(hojeBase);
+    d.setDate(hojeBase.getDate()+i);
+    const iso=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    diasVis.push({iso,label:`${nomesDias[d.getDay()]} ${formatarData(iso)}`});
+  }
+  const campos=[{k:'principal',l:'🍖 Prato principal'},{k:'guarnicao',l:'🫙 Guarnição'},{k:'acompanhamento',l:'🍚 Acompanhamento'},{k:'salada',l:'🥗 Salada'},{k:'sobremesa',l:'🍮 Sobremesa'}];
+  el.innerHTML=diasVis.map(({iso,label})=>{
+    const dia=cardapio[iso];
+    if(!dia||(!dia.almoco&&!dia.janta)){
+      const [y,m,d]=iso.split('-').map(Number);
+      const dow=new Date(y,m-1,d).getDay();
+      if(dow===0) return `<div class="cardapio-dia"><div class="cardapio-dia-header">${label}</div><div style="padding:12px;color:var(--text2);font-size:0.85rem;">🚫 RU fechado (domingo)</div></div>`;
+      return `<div class="cardapio-dia"><div class="cardapio-dia-header">${label}</div><div style="padding:12px;color:var(--text2);font-size:0.85rem;">📋 Cardápio não divulgado ainda.</div></div>`;
+    }
+    const turnos=[dia.almoco?{t:'almoco',l:'☀️ Almoço',d:dia.almoco}:null, dia.janta?{t:'janta',l:'🌙 Janta',d:dia.janta}:null].filter(Boolean);
+    return `<div class="cardapio-dia">
+      <div class="cardapio-dia-header">${label}</div>
+      <div class="cardapio-turnos">
+        ${turnos.map(({l,d})=>`
+          <div class="cardapio-turno">
+            <div class="cardapio-turno-title">${l}</div>
+            ${campos.map(({k,ll})=>d[k]?`<div class="cardapio-item"><span class="cardapio-item-label">${campos.find(c=>c.k===k).l}</span><span class="cardapio-item-val">${d[k]}</span></div>`:'').join('')}
+          </div>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderStats() {
+  if(!estadoAluno)return;
+  const a=estadoAluno;
+  const sol=(a.agendamentos||[]).filter(x=>x.status!=='cancelado').length;
+  const cons=a.totalConsumidas||0;
+  document.getElementById('stat-total').textContent=sol;
+  document.getElementById('stat-consumidas').textContent=cons;
+  document.getElementById('stat-streak').textContent=a.streakAtual||0;
+  const nA=getNivel(cons), idx=NIVEIS.indexOf(nA), nP=NIVEIS[idx+1];
+  let pct=0,meta='';
+  if(nP){const iv=nP.min-nA.min; pct=((cons-nA.min)/iv)*100; meta=`${cons}/${nP.min} para ${nP.emoji} ${nP.nome}`;}
+  else{pct=100;meta='Nível máximo! 💎';}
+  document.getElementById('nivel-progress-bar').style.width=`${Math.min(pct,100)}%`;
+  document.getElementById('nivel-progresso-info').innerHTML=`
+    <span>${badgeNivelLight(nA.nome)}</span>
+    <span style="font-size:0.82rem;color:var(--text2);margin-left:10px;">${meta}</span>`;
+  // Ranking
+  renderRanking();
+}
+
+function renderRanking() {
+  const el=document.getElementById('ranking-list');
+  if(!el||!dbEstado)return;
+  const medalhas=['🥇','🥈','🥉'];
+  const cores=['#f59e0b','#94a3b8','#cd7f32'];
+  // Monta lista a partir dos alunos do banco
+  const todos=Object.values(dbEstado.alunos||{})
+    .map(a=>({id:a.id,nome:a.nome,totalConsumidas:a.totalConsumidas||0,nivel:a.nivel||'Faminto',residente:a.residente||false}))
+    .sort((a,b)=>b.totalConsumidas-a.totalConsumidas);
+  // Top 10 (preenche até 10 posições)
+  let html='';
+  for(let i=0;i<10;i++){
+    const eu=todos[i]?.id===ALUNO_ID;
+    const ehVoce=eu?'border-color:var(--ufersa-blue);background:rgba(0,82,165,0.08);':'';
+    if(todos[i]){
+      const nv=getNivel(todos[i].totalConsumidas);
+      const cor=i<3?cores[i]:'var(--text2)';
+      const icone=i<3?medalhas[i]:`${i+1}º`;
+      html+=`<div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--bg3);border-radius:var(--radius);border:1px solid var(--border);${ehVoce}">
+        <span style="font-size:${i<3?'1.3rem':'0.9rem'};font-weight:800;min-width:28px;text-align:center;color:${cor};">${icone}</span>
+        <div style="flex:1;">
+          <div style="font-weight:700;font-size:0.9rem;">${todos[i].nome}${todos[i].residente?' <span style="font-size:0.7rem;color:#a78bfa;">🏠</span>':''}${eu?' <span style="font-size:0.72rem;color:var(--ufersa-blue);font-weight:700;">(você)</span>':''}</div>
+          <div style="font-size:0.75rem;">${badgeNivelLight(todos[i].nivel)}</div>
+        </div>
+        <span style="font-weight:800;font-size:1rem;color:${cor};">${todos[i].totalConsumidas} <span style="font-size:0.7rem;font-weight:400;color:var(--text2);">ref.</span></span>
+      </div>`;
+    } else {
+      html+=`<div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--bg3);border-radius:var(--radius);border:1px solid var(--border);opacity:0.35;">
+        <span style="font-size:0.9rem;font-weight:800;min-width:28px;text-align:center;color:var(--text2);">${i+1}º</span>
+        <div style="flex:1;font-size:0.85rem;color:var(--text2);">— sem dados —</div>
+      </div>`;
+    }
+  }
+  el.innerHTML=html;
+}
+
+function renderQRCode() {
+  if(!estadoAluno)return;
+  const el=document.getElementById('qrcode-display');
+  el.innerHTML='';
+  new QRCode(el,{text:estadoAluno.qrCode,width:180,height:180,colorDark:'#000000',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M});
+  document.getElementById('qr-nome-label').textContent=estadoAluno.nome;
+  document.getElementById('qr-matricula-label').textContent=`Mat: ${estadoAluno.matricula}`;
+}
+
+function renderEnquetes() {
+  const el=document.getElementById('enquetes-list');
+  if(!el)return;
+  const enquetes=dbEstado?.enquetes||[];
+  const nivelAtual=getNivel(estadoAluno?.totalConsumidas||0);
+  const podeSugerir=nivelAtual.podeSugerir;
+  const minhasSugestoes=(dbEstado?.sugestoes||[]).filter(s=>s.alunoId===ALUNO_ID);
+  const temSugestaoAtiva=minhasSugestoes.length>0;
+  // Bloco de sugestão
+  const formSug=document.getElementById('sugestao-form');
+  const msgSug=document.getElementById('sugestao-status-msg');
+  const btnSug=document.getElementById('btn-sugestao');
+  const inputSug=document.getElementById('input-sugestao');
+  const blocoSug=document.getElementById('bloco-sugestao');
+  // Mostra o bloco se é Marmiteiro OU se tem sugestão ativa pendente (para poder cancelar)
+  if(podeSugerir || temSugestaoAtiva){
+    if(blocoSug) blocoSug.style.display='block';
+    const temSaldo=(estadoAluno?.totalConsumidas||0)>=20;
+    if(podeSugerir && temSaldo){
+      inputSug.disabled=false; btnSug.disabled=false; msgSug.innerHTML='';
+    } else if(podeSugerir && !temSaldo){
+      inputSug.disabled=true; btnSug.disabled=true;
+      msgSug.innerHTML=`<p style="font-size:0.82rem;color:var(--text2);margin-bottom:10px;">⚠️ Você precisa de pelo menos <strong>20 refeições</strong> para sugerir. Atual: ${estadoAluno?.totalConsumidas||0}.</p>`;
+    } else {
+      // Não é mais Marmiteiro mas tem sugestão ativa — esconde form de envio, mostra só cancelamento
+      formSug.style.display='none';
+      msgSug.innerHTML=`<p style="font-size:0.82rem;color:var(--text2);margin-bottom:8px;">🔒 Você não é mais Marmiteiro, mas pode cancelar sua sugestão abaixo para recuperar as 20 refeições.</p>`;
+    }
+    if(podeSugerir) formSug.style.display='block';
+    // Lista de sugestões pendentes com botão cancelar
+    const minhaSugEl=document.getElementById('minhas-sugestoes-list');
+    if(minhaSugEl){
+      if(temSugestaoAtiva){
+        minhaSugEl.innerHTML=`<div style="font-size:0.8rem;color:var(--text2);margin-bottom:6px;font-weight:600;">Suas sugestões pendentes:</div>`+
+          minhasSugestoes.map(s=>`<div style="display:flex;align-items:center;justify-content:space-between;background:var(--bg3);border-radius:var(--radius);padding:8px 10px;margin-bottom:6px;">
+            <span style="font-size:0.83rem;">💡 ${s.texto}</span>
+            <button class="btn btn-ghost" style="padding:4px 10px;font-size:0.72rem;color:var(--error);border-color:rgba(239,68,68,0.3);" onclick="cancelarSugestao('${s.id}')">✕ Cancelar (+20)</button>
+          </div>`).join('');
+      } else {
+        minhaSugEl.innerHTML='';
+      }
+    }
+  } else {
+    if(blocoSug) blocoSug.style.display='none';
+  }
+  // Lista enquetes
+  if(!enquetes.length){el.innerHTML=`<div class="empty-state"><div class="empty-icon">🗳️</div><p>Nenhuma enquete ativa.</p></div>`;return;}
+  el.innerHTML=enquetes.filter(e=>e.status==='ativa').map(eq=>{
+    const total=eq.opcoes.reduce((s,o)=>s+o.votos,0);
+    const jaVotou=eq.votantes?.includes(ALUNO_ID);
+    const pesoVoto=nivelAtual.pesoVoto||1;
+    return `<div class="enquete-card">
+      <div class="enquete-titulo">🗳️ ${eq.titulo}</div>
+      <div style="font-size:0.75rem;color:var(--text2);margin-bottom:10px;">${total} voto(s) · Seu voto vale <strong style="color:var(--accent)">${pesoVoto}x</strong></div>
+      <div class="enquete-opcoes">
+        ${eq.opcoes.map(op=>{
+          const pct=total>0?Math.round((op.votos/total)*100):0;
+          return `<div class="enquete-opcao ${jaVotou?'':'enquete-opcao-hover'}" onclick="${!jaVotou?`votar('${eq.id}','${op.id}')`:''}" style="${!jaVotou?'cursor:pointer':''}">
+            <div style="flex:1;font-size:0.85rem;font-weight:600;">${op.texto}</div>
+            <div class="enquete-opcao-bar"><div class="enquete-opcao-fill" style="width:${pct}%"></div></div>
+            <div class="enquete-votos">${pct}%</div>
+          </div>`;
+        }).join('')}
+      </div>
+      ${jaVotou?`<p style="font-size:0.75rem;color:var(--success);margin-top:10px;">✅ Você já votou.</p>`:''}
+    </div>`;
+  }).join('');
+}
+
+// ─── Ações ─────────────────────────────────────────────────────────────────────
+function pedirAgendamento(data,turno){
+  if(!estadoAluno){showToast('Dados não carregados.','error');return;}
+  agPendenteConfirmacao={data,turno};
+  document.getElementById('modal-confirmar-info').textContent=`Confirmar agendamento de ${turno==='almoco'?'Almoço ☀️':'Janta 🌙'} para ${formatarData(data)}?`;
+  abrirModal('modal-confirmar-ag');
+}
+function confirmarAgendamento(){
+  if(!agPendenteConfirmacao)return;
+  enviarWS({type:'SOLICITAR_REFEICAO',alunoId:ALUNO_ID,...agPendenteConfirmacao});
+  fecharModal('modal-confirmar-ag'); agPendenteConfirmacao=null;
+}
+function pedirCancelamento(agId,data,turno){
+  agPendenteCancelamento=agId;
+  document.getElementById('modal-cancelar-info').textContent=`Cancelar ${turno} do dia ${formatarData(data)}?`;
+  const aviso=document.getElementById('modal-cancelar-aviso');
+  if(data>hojeLocal()){aviso.style.cssText='background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);color:var(--success);padding:10px;border-radius:var(--radius)';aviso.textContent='✅ Cancelamento com antecedência — streak mantido.';}
+  else{aviso.style.cssText='background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:var(--error);padding:10px;border-radius:var(--radius)';aviso.textContent='⚠️ Cancelamento pode afetar sua sequência.';}
+  abrirModal('modal-cancelar');
+}
+function confirmarCancelamento(){
+  if(!agPendenteCancelamento)return;
+  enviarWS({type:'CANCELAR_AGENDAMENTO',agendamentoId:agPendenteCancelamento,alunoId:ALUNO_ID});
+  fecharModal('modal-cancelar'); agPendenteCancelamento=null;
+}
+function adicionarCredito(){
+  const val=parseFloat(document.getElementById('input-credito').value);
+  if(!val||val<1){showToast('Valor mínimo: R$ 1,00','error');return;}
+  enviarWS({type:'ADICIONAR_CREDITO',alunoId:ALUNO_ID,valor:val,metodo:metodoPagamento});
+  fecharModal('modal-credito'); document.getElementById('input-credito').value='';
+}
+function selecionarPagamento(m,btn){
+  metodoPagamento=m;
+  document.querySelectorAll('.payment-method-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+function setSugestao(val,btn){
+  document.getElementById('input-credito').value=val;
+  document.querySelectorAll('.valor-sugestao').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+function limparSugestoes(){ document.querySelectorAll('.valor-sugestao').forEach(b=>b.classList.remove('active')); }
+function abrirModalSaque(){
+  if(!estadoAluno)return;
+  document.getElementById('saque-disponivel').textContent=formatCredito(estadoAluno.creditos);
+  document.getElementById('input-saque').value=''; document.getElementById('input-saque-pix').value='';
+  abrirModal('modal-saque');
+}
+function solicitarSaque(){
+  const val=parseFloat(document.getElementById('input-saque').value);
+  const pix=document.getElementById('input-saque-pix').value.trim();
+  if(!val||val<1){showToast('Valor mínimo: R$ 1,00','error');return;}
+  if(val>estadoAluno.creditos){showToast('Saldo insuficiente.','error');return;}
+  enviarWS({type:'SOLICITAR_SAQUE',alunoId:ALUNO_ID,valor:val,chavePix:pix||null});
+  fecharModal('modal-saque');
+}
+function votar(enqueteId,opcaoId){
+  if(!ALUNO_ID)return;
+  enviarWS({type:'VOTAR_ENQUETE',enqueteId,opcaoId,alunoId:ALUNO_ID});
+}
+function enviarSugestao(){
+  const txt=document.getElementById('input-sugestao').value.trim();
+  if(!txt){showToast('Escreva sua sugestão.','error');return;}
+  enviarWS({type:'ENVIAR_SUGESTAO',alunoId:ALUNO_ID,sugestao:txt});
+  document.getElementById('input-sugestao').value='';
+}
+
+function cancelarSugestao(sugestaoId){
+  if(!confirm('Cancelar esta sugestão? Sua refeição será devolvida.')) return;
+  enviarWS({type:'CANCELAR_SUGESTAO',alunoId:ALUNO_ID,sugestaoId});
+}
+
+// ─── UI Helpers ─────────────────────────────────────────────────────────────────
+function switchTab(id,btn){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('active'); btn.classList.add('active');
+  if(id==='tab-qrcode') renderQRCode();
+  if(id==='tab-cardapio') renderCardapio();
+}
+function abrirModal(id){ document.getElementById(id).classList.add('active'); }
+function fecharModal(id){ document.getElementById(id).classList.remove('active'); }
+document.querySelectorAll('.modal-overlay').forEach(m=>{
+  m.addEventListener('click',e=>{ if(e.target===m) m.classList.remove('active'); });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,3 @@
+Umas observações aqui para falar na apresentação que eu e alex pensamos:
+1 - O pit tem que deixar bem claro que é uma apresentação de um "MVP" e que ainda há muitas melhorias e ideias que podem ser implementada a mais nele. Como por exemplo melhorar a gamificação, dar mas premios, diminuir punições e etc.
+2- Ressaltar que o websocket é uma ferramenta muito pratica, a gente fez todo o software antes de implementar o hardware e deixamos o software com o websocket pronto para receber a integração do hardware, quando programamos (onde bastou apenas dizer o ID do server socket) o hardware e conectamos no computador ele já se integrou direto ao sistema sem precisar mudar nada nos codigos do software.

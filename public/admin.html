@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RU-Smart | Admin</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍽️</text></svg>" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+<div id="toast-container"></div>
+
+<!-- LOGIN ADMIN -->
+<div class="login-screen" id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="logo-icon-big">🍽️</div>
+      <h1>RU-Smart</h1>
+      <p>Painel Administrativo</p>
+    </div>
+    <div class="login-field">
+      <label>Usuário admin</label>
+      <input type="text" id="login-admin-user" value="admin" />
+    </div>
+    <div class="login-field">
+      <label>Senha</label>
+      <input type="password" id="login-admin-senha" value="admin123" />
+    </div>
+    <button class="login-btn" onclick="fazerLoginAdmin()">Acessar Painel</button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<!-- MODAL: Saques -->
+<div class="modal-overlay" id="modal-saques">
+  <div class="modal" style="max-width:500px;">
+    <h3>🏧 Solicitações de Saque</h3>
+    <div id="saques-list" style="max-height:320px;overflow-y:auto;margin-bottom:16px;"></div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="fecharModal('modal-saques')">Fechar</button></div>
+  </div>
+</div>
+
+<!-- APP ADMIN -->
+<div class="app-wrapper" id="app-wrapper" style="display:none">
+
+  <header class="header">
+    <div class="header-logo">
+      <div class="logo-icon">🍽️</div>
+      <div><h1>RU-Smart</h1><div class="header-sub">Painel Administrativo</div></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+      <button class="btn btn-warning" style="font-size:0.8rem;padding:8px 14px;" onclick="abrirSaques()">🏧 Saques</button>
+      <span class="admin-badge">⚙️ Admin</span>
+      <div class="ws-status"><div class="ws-dot"></div><span class="ws-text">Conectando...</span></div>
+      <button class="btn-logout" onclick="fazerLogout()">Sair</button>
+    </div>
+  </header>
+
+  <!-- Tabs Admin -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('tab-dashboard',this)">📊 Dashboard</button>
+    <button class="tab-btn" onclick="switchTab('tab-agendamentos',this)">📋 Agendamentos</button>
+    <button class="tab-btn" onclick="switchTab('tab-cardapio',this)">🍽️ Cardápio</button>
+    <button class="tab-btn" onclick="switchTab('tab-historico',this)">📅 Histórico</button>
+    <button class="tab-btn" onclick="switchTab('tab-enquetes',this)">🗳️ Enquetes</button>
+  </div>
+
+  <!-- ── Tab: Dashboard ─────────────────────────────────────────────────────── -->
+  <div class="tab-content active" id="tab-dashboard">
+
+    <div class="section-title">☀️ Almoço de Hoje</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;">
+      <div class="metric-card almoco-m"><div class="metric-value" id="m-almoco-sol">0</div><div class="metric-label">Solicitados no Almoço</div></div>
+      <div class="metric-card consumido"><div class="metric-value" id="m-almoco-con">0</div><div class="metric-label">Consumidos no Almoço ✅</div></div>
+    </div>
+    <div class="section-title">🌙 Janta de Hoje</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px;">
+      <div class="metric-card janta-m"><div class="metric-value" id="m-janta-sol">0</div><div class="metric-label">Solicitados na Janta</div></div>
+      <div class="metric-card consumido"><div class="metric-value" id="m-janta-con">0</div><div class="metric-label">Consumidos na Janta ✅</div></div>
+    </div>
+
+    <div class="section-title">🫙 Monitor de Cubas</div>
+    <div id="cubas-grid" style="display:flex;flex-direction:column;gap:12px;"></div>
+
+  </div>
+
+  <!-- ── Tab: Agendamentos (visão por dia → detalhe) ─────────────────────────── -->
+  <div class="tab-content" id="tab-agendamentos">
+    <!-- Visão resumo 7 dias -->
+    <div id="ag-view-resumo">
+      <div class="card">
+        <div class="card-title"><span>📋</span> Agendamentos — Próximos 7 dias</div>
+        <div id="ag-dias-grid" style="display:flex;flex-direction:column;gap:10px;"></div>
+      </div>
+    </div>
+    <!-- Visão detalhe de um dia -->
+    <div id="ag-view-detalhe" style="display:none;">
+      <div style="margin-bottom:14px;">
+        <button class="btn btn-ghost" onclick="voltarResumoDias()">← Voltar</button>
+      </div>
+      <div class="card">
+        <div class="card-title"><span>📋</span> Agendamentos de <span id="detalhe-titulo">—</span></div>
+        <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
+          <input type="text" id="busca-aluno" placeholder="🔍 Buscar aluno..." style="max-width:220px;" oninput="renderDetalheAgendamentos()" />
+          <select id="filtro-status" onchange="renderDetalheAgendamentos()" style="max-width:170px;">
+            <option value="">Todos os status</option>
+            <option value="solicitado">Solicitado</option>
+            <option value="consumido">Consumido</option>
+            <option value="cancelado">Cancelado</option>
+          </select>
+          <select id="filtro-turno" onchange="renderDetalheAgendamentos()" style="max-width:150px;">
+            <option value="">Todos os turnos</option>
+            <option value="almoco">☀️ Almoço</option>
+            <option value="janta">🌙 Janta</option>
+          </select>
+        </div>
+        <div class="ag-list" id="admin-ag-list" style="max-height:500px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Tab: Cardápio Admin ────────────────────────────────────────────────── -->
+  <div class="tab-content" id="tab-cardapio">
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-title"><span>✏️</span> Editar / Criar Cardápio</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+        <div class="input-group" style="margin-bottom:0;">
+          <label>Data</label>
+          <input type="date" id="card-data" />
+        </div>
+        <div class="input-group" style="margin-bottom:0;">
+          <label>Turno</label>
+          <select id="card-turno">
+            <option value="almoco">☀️ Almoço</option>
+            <option value="janta">🌙 Janta</option>
+          </select>
+        </div>
+      </div>
+      <div id="card-campos" style="display:flex;flex-direction:column;gap:10px;margin-bottom:14px;">
+        <div class="input-group" style="margin-bottom:0;"><label>🍖 Prato Principal</label><input type="text" id="card-principal" placeholder="Ex: Frango grelhado" /></div>
+        <div class="input-group" style="margin-bottom:0;"><label>🫙 Guarnição</label><input type="text" id="card-guarnicao" placeholder="Ex: Macarrão ao sugo" /></div>
+        <div class="input-group" style="margin-bottom:0;"><label>🍚 Acompanhamento</label><input type="text" id="card-acompanhamento" placeholder="Ex: Arroz branco, Feijão" /></div>
+        <div class="input-group" style="margin-bottom:0;"><label>🥗 Salada</label><input type="text" id="card-salada" placeholder="Ex: Alface e tomate" /></div>
+        <div class="input-group" style="margin-bottom:0;"><label>🍮 Sobremesa</label><input type="text" id="card-sobremesa" placeholder="Ex: Pudim de leite" /></div>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-ghost" onclick="carregarCardapioNosInputs()">📂 Carregar dia selecionado</button>
+        <button class="btn btn-primary" onclick="salvarCardapio()">💾 Salvar Cardápio</button>
+      </div>
+    </div>
+
+    <!-- Visualização do cardápio da semana -->
+    <div class="card">
+      <div class="card-title"><span>🍽️</span> Cardápio — Próximos 7 dias</div>
+      <div id="admin-cardapio-view"></div>
+    </div>
+
+    <!-- Sugestões dos alunos -->
+    <div class="card" style="margin-top:16px;">
+      <div class="card-title"><span>💡</span> Sugestões dos Alunos (Marmiteiros)</div>
+      <div id="admin-sugestoes-list"></div>
+    </div>
+  </div>
+
+  <!-- ── Tab: Histórico Semanal ──────────────────────────────────────────────── -->
+  <div class="tab-content" id="tab-historico">
+    <div class="card">
+      <div class="card-title"><span>📅</span> Histórico por Dia da Semana</div>
+      <div class="hist-grid" id="hist-grid"></div>
+    </div>
+  </div>
+
+  <!-- ── Tab: Enquetes Admin ─────────────────────────────────────────────────── -->
+  <div class="tab-content" id="tab-enquetes">
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-title"><span>➕</span> Criar Enquete</div>
+      <div class="input-group"><label>Título</label><input type="text" id="nova-enquete-titulo" placeholder="Ex: Qual proteína você quer na sexta?" /></div>
+      <div id="nova-enquete-opcoes" style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;">
+        <input type="text" class="enquete-opcao-input" placeholder="Opção 1" />
+        <input type="text" class="enquete-opcao-input" placeholder="Opção 2" />
+        <input type="text" class="enquete-opcao-input" placeholder="Opção 3" />
+      </div>
+      <button class="btn btn-primary" onclick="criarEnquete()">✅ Criar Enquete</button>
+    </div>
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-title"><span>🗳️</span> Enquetes Ativas</div>
+      <div id="admin-enquetes-list"><div class="empty-state"><div class="empty-icon">🗳️</div><p>Nenhuma enquete.</p></div></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span>💡</span> Sugestões dos Marmiteiros 💎</div>
+      <p style="font-size:0.82rem;color:var(--text2);margin-bottom:12px;">Sugestões enviadas por alunos de nível Marmiteiro. Clique em "Consumir" para marcar como atendida.</p>
+      <div id="admin-enquetes-sugestoes-list"><div class="empty-state"><div class="empty-icon">💡</div><p>Nenhuma sugestão.</p></div></div>
+    </div>
+  </div>
+
+</div>
+
+<script src="script.js"></script>
+<script>
+let dbEstado = null;
+let adminLogado = false;
+let diaSelecionado = null;
+
+// ─── Login ─────────────────────────────────────────────────────────────────────
+function fazerLoginAdmin() {
+  const u=document.getElementById('login-admin-user').value.trim();
+  const s=document.getElementById('login-admin-senha').value;
+  if(u==='admin'&&s==='admin123'){
+    adminLogado=true;
+    document.getElementById('login-screen').classList.add('hidden');
+    document.getElementById('app-wrapper').style.display='block';
+    enviarWS({type:'GET_STATE'});
+  } else { document.getElementById('login-error').textContent='Credenciais incorretas.'; }
+}
+function fazerLogout(){
+  adminLogado=false;
+  document.getElementById('login-screen').classList.remove('hidden');
+  document.getElementById('app-wrapper').style.display='none';
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('login-admin-senha').addEventListener('keydown',e=>{ if(e.key==='Enter') fazerLoginAdmin(); });
+  conectarWS(handleMensagem,()=>{ if(adminLogado) enviarWS({type:'GET_STATE'}); });
+  // Define data de hoje no input de cardápio
+  document.getElementById('card-data').value=hojeLocalAdmin();
+});
+
+// ─── Handler WS ────────────────────────────────────────────────────────────────
+function handleMensagem(data) {
+  console.log('[WS RECEBIDO]', data);
+  if(!adminLogado && data.type !== 'LOGIN_OK' && data.type !== 'LOGIN_ERRO') {
+    if (data.type === 'CUBA_UPDATE') console.log('CUBA_UPDATE recebido, mas admin ainda não fez login.');
+    return;
+  }
+  switch(data.type){
+    case 'INIT': dbEstado=data.data; renderTudo(); break;
+    case 'REFEICAO_SOLICITADA':
+      if(!dbEstado)break;
+      if(data.metricas)Object.assign(dbEstado.metricas,data.metricas);
+      if(data.agendamento){
+        dbEstado.agendamentos.push(data.agendamento);
+        const al=dbEstado.alunos[data.agendamento.alunoId];
+        if(al){al.agendamentos=al.agendamentos||[];al.agendamentos.push(data.agendamento);}
+      }
+      renderMetricas(); renderDiasAgendamentos();
+      if(diaSelecionado)renderDetalheAgendamentos();
+      break;
+    case 'CONSUMO_CONFIRMADO':
+      if(!dbEstado)break;
+      if(data.metricas)Object.assign(dbEstado.metricas,data.metricas);
+      const agC=dbEstado.agendamentos.find(a=>a.id===data.agendamentoId);
+      if(agC)agC.status='consumido';
+      if(data.aluno&&dbEstado.alunos[data.aluno.id]){
+        Object.assign(dbEstado.alunos[data.aluno.id],data.aluno);
+        const al=dbEstado.alunos[data.aluno.id];
+        if(al.agendamentos){const agAl=al.agendamentos.find(a=>a.id===data.agendamentoId);if(agAl)agAl.status='consumido';}
+      }
+      renderMetricas(); renderDiasAgendamentos();
+      if(diaSelecionado)renderDetalheAgendamentos();
+      break;
+    case 'AGENDAMENTO_CANCELADO':
+      if(!dbEstado)break;
+      if(data.metricas)Object.assign(dbEstado.metricas,data.metricas);
+      const agCan=dbEstado.agendamentos.find(a=>a.id===data.agendamentoId);
+      if(agCan)agCan.status='cancelado';
+      const alCan=dbEstado.alunos[data.alunoId];
+      if(alCan?.agendamentos){const agAlCan=alCan.agendamentos.find(a=>a.id===data.agendamentoId);if(agAlCan)agAlCan.status='cancelado';}
+      renderMetricas(); renderDiasAgendamentos();
+      if(diaSelecionado)renderDetalheAgendamentos();
+      break;
+    case 'CUBA_UPDATE':
+      if(dbEstado){
+        dbEstado.cubas=data.cubas;
+        renderCubas();
+        showToast('Cuba atualizada pelo sensor', 'success', 1500);
+      }
+      break;
+    case 'ENQUETE_UPDATE': if(dbEstado){dbEstado.enquetes=data.enquetes;renderEnquetesAdmin();} break;
+    case 'SUGESTAO_NOVA': if(dbEstado){dbEstado.sugestoes=data.sugestoes;renderSugestoesAdmin();} break;
+    case 'CARDAPIO_UPDATE': if(dbEstado){dbEstado.cardapio=data.cardapio;renderCardapioAdmin();renderCardapioAdminView();} break;
+    case 'CREDITO_ADICIONADO': if(dbEstado){const al=dbEstado.alunos[data.alunoId];if(al)al.creditos=data.novoSaldo;} break;
+    case 'SAQUE_SOLICITADO':
+      if(dbEstado){
+        if(!dbEstado.saquesAdm)dbEstado.saquesAdm=[];
+        dbEstado.saquesAdm.push(data.saque);
+        const al=dbEstado.alunos[data.alunoId];
+        if(al)al.creditos=data.novoSaldo;
+      } break;
+    case 'SUCCESS': showToast(data.message,'success'); break;
+    case 'ERROR': showToast(data.message,'error'); break;
+  }
+}
+
+function renderTudo(){
+  renderMetricas(); renderCubas(); renderDiasAgendamentos();
+  renderHistoricoSemanal(); renderEnquetesAdmin();
+  renderCardapioAdmin(); renderCardapioAdminView(); renderSugestoesAdmin();
+}
+
+// ─── Métricas ─────────────────────────────────────────────────────────────────
+function renderMetricas(){
+  if(!dbEstado)return;
+  const m=dbEstado.metricas||{};
+  document.getElementById('m-almoco-sol').textContent=m.almocosHoje||0;
+  document.getElementById('m-almoco-con').textContent=m.almocosConsumidosHoje||0;
+  document.getElementById('m-janta-sol').textContent=m.jantasHoje||0;
+  document.getElementById('m-janta-con').textContent=m.jantasConsumidosHoje||0;
+}
+
+// ─── Cubas ────────────────────────────────────────────────────────────────────
+function gerarSVGCuba(tipo,faixas){
+  const cor=faixas>=7?'#22c55e':faixas>=4?'#f59e0b':faixas>=1?'#ef4444':'#30363d';
+  const pct=(faixas/10)*100;
+  const larg=tipo==='grande'?60:46;
+  const preench=Math.round((pct/100)*52);
+  const yF=60-preench;
+  return `<svg viewBox="0 0 ${larg} 80" xmlns="http://www.w3.org/2000/svg" width="${larg}" height="80">
+    <defs><clipPath id="clip-${tipo}-${faixas}"><path d="M4,10 L${larg-4},10 L${larg-8},66 L12,66 Z"/></clipPath></defs>
+    <path d="M4,10 L${larg-4},10 L${larg-8},66 L12,66 Z" fill="none" stroke="#30363d" stroke-width="2"/>
+    <rect x="0" y="8" width="6" height="12" rx="2" fill="#30363d"/>
+    <rect x="${larg-6}" y="8" width="6" height="12" rx="2" fill="#30363d"/>
+    <rect x="5" y="${yF}" width="${larg-10}" height="${preench+10}" fill="${cor}" opacity="0.85" clip-path="url(#clip-${tipo}-${faixas})"/>
+    <rect x="2" y="6" width="${larg-4}" height="6" rx="3" fill="#30363d"/>
+    ${faixas===0?`<text x="${larg/2}" y="42" text-anchor="middle" font-size="7" fill="#8b949e" font-family="sans-serif">Vazia</text>`:''}
+  </svg>`;
+}
+
+function renderCubas(){
+  if(!dbEstado)return;
+  const grid=document.getElementById('cubas-grid');
+  if(!grid)return;
+  const cubas=Object.values(dbEstado.cubas||{});
+  grid.innerHTML=cubas.map(c=>{
+    const f=c.faixas!==undefined?c.faixas:0;
+    const pct=faixaPct(f);
+    const label=faixaLabel(f);
+    const cor=f>=3?'var(--success)':f>=2?'var(--gold)':'var(--error)';
+    return `<div class="cuba-card">
+      <div class="cuba-card-info">
+        <div class="cuba-header">
+          <span class="cuba-nome">🫙 ${c.nome}</span>
+          <span class="cuba-tipo">${c.tipo==='grande'?'🟢 Grande':'🔵 Pequena'}</span>
+        </div>
+        <div class="cuba-descricao">${c.descricao||''}</div>
+        <div class="cuba-faixa-label" style="color:${cor}">${label}</div>
+        <div class="progress-track"><div class="progress-fill ${classeProgresso(f)}" style="width:${pct}%"></div></div>
+        <label style="font-size:0.75rem;color:var(--text2);margin-bottom:4px;display:block;margin-top:8px;">Atualizar nível:</label>
+        <select class="cuba-select" onchange="enviarAtualizacaoCuba('${c.id}',this.value)">
+          <option value="0"  ${f===0 ?'selected':''}>0% — Vazia</option>
+          <option value="1"  ${f===1 ?'selected':''}>1–10% — Crítico</option>
+          <option value="2"  ${f===2 ?'selected':''}>11–20% — Crítico</option>
+          <option value="3"  ${f===3 ?'selected':''}>21–30% — Baixo</option>
+          <option value="4"  ${f===4 ?'selected':''}>31–40% — Baixo</option>
+          <option value="5"  ${f===5 ?'selected':''}>41–50% — Médio</option>
+          <option value="6"  ${f===6 ?'selected':''}>51–60% — Médio</option>
+          <option value="7"  ${f===7 ?'selected':''}>61–70% — Normal</option>
+          <option value="8"  ${f===8 ?'selected':''}>71–80% — Normal</option>
+          <option value="9"  ${f===9 ?'selected':''}>81–90% — Cheio</option>
+          <option value="10" ${f===10?'selected':''}>91–100% — Cheio</option>
+        </select>
+      </div>
+      <div class="cuba-illustration">${gerarSVGCuba(c.tipo,f)}</div>
+    </div>`;
+  }).join('');
+}
+
+function enviarAtualizacaoCuba(id,faixas){
+  enviarWS({type:'ATUALIZAR_CUBA',id,faixas:parseInt(faixas)});
+}
+
+// ─── Agendamentos — visão por dia ─────────────────────────────────────────────
+function hojeLocalAdmin(){
+  if(typeof PRESENTATION_DATE!=='undefined'&&PRESENTATION_DATE) return PRESENTATION_DATE;
+  const d=new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function renderDiasAgendamentos(){
+  if(!dbEstado)return;
+  const grid=document.getElementById('ag-dias-grid');
+  if(!grid)return;
+  const hoje=hojeLocalAdmin();
+  const nomesDias=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  const dias=[];
+  const [hy2,hm2,hd2]=hoje.split('-').map(Number);
+  const hojeBase2=new Date(hy2,hm2-1,hd2);
+  for(let i=0;i<7;i++){
+    const d=new Date(hojeBase2);d.setDate(hojeBase2.getDate()+i);
+    const iso=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    dias.push({iso,label:`${nomesDias[d.getDay()]} ${formatarData(iso)}`,ehHoje:i===0});
+  }
+  grid.innerHTML=dias.map(({iso,label,ehHoje})=>{
+    const ags=dbEstado.agendamentos.filter(a=>a.data===iso);
+    const almSol=ags.filter(a=>a.turno==='almoco'&&a.status==='solicitado').length;
+    const almCon=ags.filter(a=>a.turno==='almoco'&&a.status==='consumido').length;
+    const janSol=ags.filter(a=>a.turno==='janta'&&a.status==='solicitado').length;
+    const janCon=ags.filter(a=>a.turno==='janta'&&a.status==='consumido').length;
+    return `<div class="ag-dia-row ${ehHoje?'ag-dia-hoje':''}" onclick="abrirDia('${iso}','${label}')">
+      <div class="ag-dia-label">${label} ${ehHoje?'<span style="font-size:0.7rem;color:var(--accent);font-weight:700;">HOJE</span>':''}</div>
+      <div class="ag-dia-stats">
+        <span class="ag-dia-stat almoco-m">☀️ ${almSol} sol. / ${almCon} cons.</span>
+        <span class="ag-dia-stat janta-m">🌙 ${janSol} sol. / ${janCon} cons.</span>
+        <span style="font-size:0.75rem;color:var(--text2);">→</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function abrirDia(iso,label){
+  diaSelecionado=iso;
+  document.getElementById('detalhe-titulo').textContent=label;
+  document.getElementById('ag-view-resumo').style.display='none';
+  document.getElementById('ag-view-detalhe').style.display='block';
+  renderDetalheAgendamentos();
+}
+
+function voltarResumoDias(){
+  diaSelecionado=null;
+  document.getElementById('ag-view-resumo').style.display='block';
+  document.getElementById('ag-view-detalhe').style.display='none';
+}
+
+function renderDetalheAgendamentos(){
+  if(!dbEstado||!diaSelecionado)return;
+  const list=document.getElementById('admin-ag-list');
+  const busca=(document.getElementById('busca-aluno')?.value||'').toLowerCase();
+  const filtroStatus=document.getElementById('filtro-status')?.value||'';
+  const filtroTurno=document.getElementById('filtro-turno')?.value||'';
+  const tl={almoco:'☀️ Almoço',janta:'🌙 Janta'};
+  const items=dbEstado.agendamentos
+    .filter(a=>{
+      if(a.data!==diaSelecionado)return false;
+      const aluno=dbEstado.alunos[a.alunoId];
+      const nm=!busca||(aluno?.nome||'').toLowerCase().includes(busca);
+      const st=!filtroStatus||a.status===filtroStatus;
+      const tu=!filtroTurno||a.turno===filtroTurno;
+      return nm&&st&&tu;
+    })
+    .sort((a,b)=>new Date(b.criadoEm)-new Date(a.criadoEm));
+  if(!items.length){list.innerHTML=`<div class="empty-state"><div class="empty-icon">📋</div><p>Nenhum agendamento.</p></div>`;return;}
+  list.innerHTML=items.map(a=>{
+    const aluno=dbEstado.alunos[a.alunoId];
+    const nA=getNivel(aluno?.totalConsumidas||0);
+    const ehResidente = aluno?.residente === true;
+    const tagResidente = ehResidente ? `<span style="background:#a78bfa22;color:#a78bfa;border:1px solid #a78bfa44;border-radius:4px;padding:1px 6px;font-size:0.7rem;font-weight:700;margin-left:6px;">🏠 Residente</span>` : '';
+    const creditoInfo = ehResidente ? '<span style="color:#a78bfa;font-size:0.78rem;">Gratuito</span>' : `💳 ${formatCredito(aluno?.creditos||0)}`;
+    return `<div class="ag-item">
+      <div class="ag-item-info">
+        <div class="ag-item-data">${badgeNivelLight(nA.nome)} ${aluno?.nome||a.alunoId}${tagResidente}</div>
+        <div class="ag-item-status">${tl[a.turno]||a.turno} · ${creditoInfo}</div>
+      </div>
+      <span class="status-badge status-${a.status}">${a.status}</span>
+    </div>`;
+  }).join('');
+}
+
+// ─── Cardápio Admin ───────────────────────────────────────────────────────────
+function renderCardapioAdminView(){
+  const el=document.getElementById('admin-cardapio-view');
+  if(!el)return;
+  const cardapio=dbEstado?.cardapio||{};
+  const nomesDias=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  const campos=[{k:'principal',l:'🍖 Principal'},{k:'guarnicao',l:'🫙 Guarnição'},{k:'acompanhamento',l:'🍚 Acomp.'},{k:'salada',l:'🥗 Salada'},{k:'sobremesa',l:'🍮 Sobremesa'}];
+  const dias=[];
+  const hojeStr=hojeLocalAdmin();
+  const [hy,hm,hd]=hojeStr.split('-').map(Number);
+  const hojeBase=new Date(hy,hm-1,hd);
+  for(let i=0;i<7;i++){
+    const d=new Date(hojeBase);d.setDate(hojeBase.getDate()+i);
+    const iso=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    dias.push({iso,label:`${nomesDias[d.getDay()]} ${formatarData(iso)}`});
+  }
+  el.innerHTML=dias.map(({iso,label})=>{
+    const dia=cardapio[iso];
+    if(!dia||(!dia.almoco&&!dia.janta)) return `<div class="cardapio-dia"><div class="cardapio-dia-header">${label}</div><div style="padding:10px;color:var(--text2);font-size:0.82rem;">📋 Sem cardápio cadastrado. <button class="btn btn-ghost" style="padding:4px 10px;font-size:0.75rem;margin-left:8px;" onclick="preencherInputsData('${iso}')">✏️ Preencher</button></div></div>`;
+    const turnos=[dia.almoco?{t:'almoco',l:'☀️ Almoço',d:dia.almoco}:null,dia.janta?{t:'janta',l:'🌙 Janta',d:dia.janta}:null].filter(Boolean);
+    return `<div class="cardapio-dia">
+      <div class="cardapio-dia-header">${label} <button class="btn btn-ghost" style="padding:4px 10px;font-size:0.72rem;margin-left:8px;" onclick="preencherInputsData('${iso}')">✏️ Editar</button></div>
+      <div class="cardapio-turnos">
+        ${turnos.map(({l,d})=>`<div class="cardapio-turno">
+          <div class="cardapio-turno-title">${l}</div>
+          ${campos.map(({k,ll})=>d[k]?`<div class="cardapio-item"><span class="cardapio-item-label">${campos.find(c=>c.k===k).l}</span><span class="cardapio-item-val">${d[k]}</span></div>`:'').join('')}
+        </div>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderCardapioAdmin(){
+  // Aqui apenas atualiza a view
+  renderCardapioAdminView();
+}
+
+function preencherInputsData(iso){
+  document.getElementById('card-data').value=iso;
+  carregarCardapioNosInputs();
+  switchTab('tab-cardapio',document.querySelector('.tab-btn:nth-child(3)'));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function carregarCardapioNosInputs(){
+  const iso=document.getElementById('card-data').value;
+  const turno=document.getElementById('card-turno').value;
+  if(!iso)return;
+  const c=dbEstado?.cardapio?.[iso]?.[turno];
+  document.getElementById('card-principal').value=c?.principal||'';
+  document.getElementById('card-guarnicao').value=c?.guarnicao||'';
+  document.getElementById('card-acompanhamento').value=c?.acompanhamento||'';
+  document.getElementById('card-salada').value=c?.salada||'';
+  document.getElementById('card-sobremesa').value=c?.sobremesa||'';
+}
+
+function salvarCardapio(){
+  const dataCard=document.getElementById('card-data').value;
+  const turno=document.getElementById('card-turno').value;
+  if(!dataCard){showToast('Selecione uma data.','error');return;}
+  const cardapioItem={
+    principal:document.getElementById('card-principal').value.trim(),
+    guarnicao:document.getElementById('card-guarnicao').value.trim(),
+    acompanhamento:document.getElementById('card-acompanhamento').value.trim(),
+    salada:document.getElementById('card-salada').value.trim(),
+    sobremesa:document.getElementById('card-sobremesa').value.trim()
+  };
+  if(!cardapioItem.principal){showToast('Prato principal é obrigatório.','error');return;}
+  enviarWS({type:'SALVAR_CARDAPIO',data:dataCard,turno,cardapioItem});
+}
+
+// ─── Sugestões Admin ───────────────────────────────────────────────────────────
+function renderSugestoesAdmin(){
+  const sugestoes=dbEstado?.sugestoes||[];
+  const makeItem = s => `
+    <div class="ag-item">
+      <div class="ag-item-info">
+        <div class="ag-item-data">💡 ${s.texto}</div>
+        <div class="ag-item-status">💎 ${s.nomeAluno} · ${new Date(s.criadoEm).toLocaleDateString('pt-BR')}</div>
+      </div>
+      <button class="btn btn-primary" style="padding:5px 14px;font-size:0.75rem;background:#3b82f6;" onclick="consumirSugestao('${s.id}')">✅ Consumir</button>
+    </div>`;
+  const empty = `<div class="empty-state"><div class="empty-icon">💡</div><p>Nenhuma sugestão ainda.</p></div>`;
+  const html = sugestoes.length ? [...sugestoes].reverse().map(makeItem).join('') : empty;
+  const el=document.getElementById('admin-sugestoes-list');
+  if(el) el.innerHTML=html;
+  const el2=document.getElementById('admin-enquetes-sugestoes-list');
+  if(el2) el2.innerHTML=html;
+}
+function consumirSugestao(sugestaoId){
+  if(!confirm('Marcar esta sugestão como consumida? Ela será removida da lista.')) return;
+  enviarWS({type:'CONSUMIR_SUGESTAO',sugestaoId});
+}
+
+function usarSugestaoComoEnquete(id,texto){
+  document.getElementById('nova-enquete-titulo').value=`Deve acrescentar: ${texto}?`;
+  const inputs=document.querySelectorAll('.enquete-opcao-input');
+  if(inputs[0])inputs[0].value='Sim, ótima ideia!';
+  if(inputs[1])inputs[1].value='Não, prefiro o cardápio atual';
+  if(inputs[2])inputs[2].value='Talvez em outro dia';
+  switchTab('tab-enquetes',document.querySelector('.tab-btn:nth-child(5)'));
+}
+
+// ─── Histórico ─────────────────────────────────────────────────────────────────
+function renderHistoricoSemanal(){
+  if(!dbEstado)return;
+  const hist=[...dbEstado.historicoSemanal||[]].sort((a,b)=>b.data.localeCompare(a.data));
+  const grid=document.getElementById('hist-grid');
+  if(!grid)return;
+  const maxA=Math.max(...hist.map(h=>h.almocos),1);
+  const maxJ=Math.max(...hist.map(h=>h.jantas),1);
+  grid.innerHTML=hist.filter(h=>h.almocos>0||h.jantas>0).map(h=>{
+    const ac=h.almocosConsumidos!==undefined?h.almocosConsumidos:h.almocos;
+    const jc=h.jantasConsumidas!==undefined?h.jantasConsumidas:h.jantas;
+    const pctASol=maxA>0?(h.almocos/maxA)*100:0;
+    const pctACon=h.almocos>0?(ac/h.almocos)*100:0;
+    const pctJSol=maxJ>0?(h.jantas/maxJ)*100:0;
+    const pctJCon=h.jantas>0?(jc/h.jantas)*100:0;
+    return `<div class="hist-item">
+      <div><div class="hist-dia">${h.diaSemana}</div><div class="hist-data">${formatarData(h.data)}</div></div>
+      <div class="hist-bar-group">
+        <div class="hist-bar-label" style="display:flex;justify-content:space-between;">
+          <span>☀️ Almoço</span>
+          <span style="font-size:0.7rem;color:var(--text2);">${ac}/${h.almocos} consumidos</span>
+        </div>
+        <div style="position:relative;height:14px;border-radius:6px;background:#1c2128;overflow:hidden;margin-bottom:3px;">
+          <div style="position:absolute;height:100%;width:${pctASol}%;background:#3b82f620;border-radius:6px;"></div>
+          <div style="position:absolute;height:100%;width:${(pctASol*pctACon/100)}%;background:#3b82f6;border-radius:6px;transition:width 0.4s;"></div>
+        </div>
+        <div style="display:flex;gap:12px;font-size:0.7rem;color:var(--text2);">
+          <span>📋 Solicitados: <strong style="color:#3b82f6">${h.almocos}</strong></span>
+          <span>✅ Consumidos: <strong style="color:#22c55e">${ac}</strong></span>
+        </div>
+      </div>
+      ${h.jantas>0?`<div class="hist-bar-group">
+        <div class="hist-bar-label" style="display:flex;justify-content:space-between;">
+          <span>🌙 Janta</span>
+          <span style="font-size:0.7rem;color:var(--text2);">${jc}/${h.jantas} consumidos</span>
+        </div>
+        <div style="position:relative;height:14px;border-radius:6px;background:#1c2128;overflow:hidden;margin-bottom:3px;">
+          <div style="position:absolute;height:100%;width:${pctJSol}%;background:#8b5cf620;border-radius:6px;"></div>
+          <div style="position:absolute;height:100%;width:${(pctJSol*pctJCon/100)}%;background:#8b5cf6;border-radius:6px;transition:width 0.4s;"></div>
+        </div>
+        <div style="display:flex;gap:12px;font-size:0.7rem;color:var(--text2);">
+          <span>📋 Solicitados: <strong style="color:#8b5cf6">${h.jantas}</strong></span>
+          <span>✅ Consumidos: <strong style="color:#22c55e">${jc}</strong></span>
+        </div>
+      </div>`:''}
+    </div>`;
+  }).join('');
+}
+
+// ─── Enquetes Admin ────────────────────────────────────────────────────────────
+function renderEnquetesAdmin(){
+  if(!dbEstado)return;
+  const el=document.getElementById('admin-enquetes-list');
+  if(!el)return;
+  const enqs=dbEstado.enquetes||[];
+  if(!enqs.length){el.innerHTML=`<div class="empty-state"><div class="empty-icon">🗳️</div><p>Nenhuma.</p></div>`;return;}
+  el.innerHTML=enqs.map(eq=>{
+    const total=eq.opcoes.reduce((s,o)=>s+o.votos,0);
+    return `<div class="enquete-card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
+        <div class="enquete-titulo">🗳️ ${eq.titulo}</div>
+        ${eq.status==='ativa'?`<button class="btn btn-danger" style="padding:4px 10px;font-size:0.72rem;" onclick="encerrarEnquete('${eq.id}')">Encerrar</button>`:`<span style="font-size:0.75rem;color:var(--text2)">Encerrada</span>`}
+      </div>
+      <div style="font-size:0.75rem;color:var(--text2);margin-bottom:10px;">${total} voto(s)</div>
+      <div class="enquete-opcoes">
+        ${eq.opcoes.map(op=>{
+          const pct=total>0?Math.round((op.votos/total)*100):0;
+          return `<div class="enquete-opcao">
+            <div style="flex:1;font-size:0.85rem;font-weight:600;">${op.texto}</div>
+            <div class="enquete-opcao-bar"><div class="enquete-opcao-fill" style="width:${pct}%"></div></div>
+            <div class="enquete-votos">${op.votos}v (${pct}%)</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function criarEnquete(){
+  const titulo=document.getElementById('nova-enquete-titulo').value.trim();
+  const opcoes=Array.from(document.querySelectorAll('.enquete-opcao-input')).map(i=>i.value.trim()).filter(Boolean);
+  if(!titulo){showToast('Título obrigatório.','error');return;}
+  if(opcoes.length<2){showToast('Mínimo 2 opções.','error');return;}
+  enviarWS({type:'CRIAR_ENQUETE',titulo,opcoes});
+  document.getElementById('nova-enquete-titulo').value='';
+  document.querySelectorAll('.enquete-opcao-input').forEach(i=>i.value='');
+}
+
+function encerrarEnquete(id){ enviarWS({type:'ENCERRAR_ENQUETE',enqueteId:id}); }
+
+// ─── Saques ───────────────────────────────────────────────────────────────────
+function abrirSaques(){
+  const list=document.getElementById('saques-list');
+  const saques=dbEstado?.saquesAdm||[];
+  if(!saques.length){list.innerHTML=`<div class="empty-state"><div class="empty-icon">🏧</div><p>Nenhuma solicitação.</p></div>`;}
+  else list.innerHTML=saques.map(s=>{
+    const al=dbEstado.alunos[s.alunoId];
+    return `<div class="ag-item" style="margin-bottom:8px;">
+      <div class="ag-item-info">
+        <div class="ag-item-data">${al?.nome||s.alunoId} — ${formatCredito(s.valor)}</div>
+        <div class="ag-item-status">Mat: ${al?.matricula}${s.chavePix?` · PIX: ${s.chavePix}`:''} · ${new Date(s.criadoEm).toLocaleDateString('pt-BR')}</div>
+      </div>
+      <button class="btn btn-success" style="padding:6px 12px;font-size:0.75rem;" onclick="processarSaque('${s.id}')">✅ Pago</button>
+    </div>`;
+  }).join('');
+  abrirModal('modal-saques');
+}
+
+function processarSaque(saqueId){
+  enviarWS({type:'PROCESSAR_SAQUE',saqueId});
+  if(dbEstado?.saquesAdm) dbEstado.saquesAdm=dbEstado.saquesAdm.filter(s=>s.id!==saqueId);
+  abrirSaques();
+}
+
+// ─── UI ───────────────────────────────────────────────────────────────────────
+function switchTab(id,btn){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if(btn)btn.classList.add('active');
+  if(id==='tab-cardapio'){renderCardapioAdminView();renderSugestoesAdmin();}
+  if(id==='tab-enquetes'){renderEnquetesAdmin();renderSugestoesAdmin();}
+}
+function abrirModal(id){ document.getElementById(id).classList.add('active'); }
+function fecharModal(id){ document.getElementById(id).classList.remove('active'); }
+document.querySelectorAll('.modal-overlay').forEach(m=>{
+  m.addEventListener('click',e=>{ if(e.target===m) m.classList.remove('active'); });
+});
+</script>
+</body>
+</html>

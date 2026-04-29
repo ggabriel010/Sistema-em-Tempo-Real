@@ -1,0 +1,927 @@
+{
+  "alunos": {
+    "aluno_001": {
+      "id": "aluno_001",
+      "nome": "Gabriel Almeida",
+      "usuario": "gabrielalmeida",
+      "matricula": "2024001234",
+      "senha": "12345678",
+      "creditos": 47.5,
+      "totalConsumidas": 47,
+      "streakAtual": 0,
+      "nivel": "Frequentador",
+      "qrCode": "RUSMART-QR-aluno_001-2024001234",
+      "saquePendente": 0,
+      "ultimaSugestaoSemana": null,
+      "agendamentos": [
+        {
+          "id": "ag_hoje_almoco_001",
+          "alunoId": "aluno_001",
+          "data": "2026-04-22",
+          "turno": "almoco",
+          "status": "consumido",
+          "criadoEm": "2026-04-21T10:00:00.000Z",
+          "consumidoEm": "2026-04-22T12:05:00.000Z"
+        },
+        {
+          "id": "ag_hoje_janta_001",
+          "alunoId": "aluno_001",
+          "data": "2026-04-22",
+          "turno": "janta",
+          "status": "solicitado",
+          "criadoEm": "2026-04-21T10:01:00.000Z"
+        },
+        {
+          "id": "ag_amanha_almoco_001",
+          "alunoId": "aluno_001",
+          "data": "2026-04-23",
+          "turno": "almoco",
+          "status": "solicitado",
+          "criadoEm": "2026-04-22T09:00:00.000Z"
+        },
+        {
+          "id": "ag_amanha_janta_001",
+          "alunoId": "aluno_001",
+          "data": "2026-04-23",
+          "turno": "janta",
+          "status": "solicitado",
+          "criadoEm": "2026-04-22T09:01:00.000Z"
+        },
+        {
+          "id": "ag_29_almoco_001",
+          "alunoId": "aluno_001",
+          "data": "2026-04-29",
+          "turno": "almoco",
+          "status": "consumido",
+          "criadoEm": "2026-04-28T10:00:00.000Z",
+          "consumidoEm": "2026-04-29T12:05:00.000Z"
+        },
+        {
+          "id": "ag_29_janta_001",
+          "alunoId": "aluno_001",
+          "data": "2026-04-29",
+          "turno": "janta",
+          "status": "cancelado",
+          "criadoEm": "2026-04-28T10:01:00.000Z"
+        },
+        {
+          "id": "ag_1777232288719",
+          "alunoId": "aluno_001",
+          "data": "2026-04-30",
+          "turno": "almoco",
+          "status": "cancelado",
+          "criadoEm": "2026-04-26T19:38:08.719Z"
+        },
+        {
+          "id": "ag_1777232291340",
+          "alunoId": "aluno_001",
+          "data": "2026-04-30",
+          "turno": "janta",
+          "status": "cancelado",
+          "criadoEm": "2026-04-26T19:38:11.340Z"
+        }
+      ]
+    },
+    "aluno_002": {
+      "id": "aluno_002",
+      "nome": "Alex Duarte",
+      "usuario": "alexduarte",
+      "matricula": "2024005678",
+      "senha": "12345678",
+      "creditos": 28,
+      "totalConsumidas": 62,
+      "streakAtual": 0,
+      "nivel": "Veterano",
+      "qrCode": "RUSMART-QR-aluno_002-2024005678",
+      "saquePendente": 0,
+      "ultimaSugestaoSemana": null,
+      "agendamentos": [
+        {
+          "id": "ag_hoje_almoco_002",
+          "alunoId": "aluno_002",
+          "data": "2026-04-22",
+          "turno": "almoco",
+          "status": "consumido",
+          "criadoEm": "2026-04-21T10:00:00.000Z",
+          "consumidoEm": "2026-04-22T12:10:00.000Z"
+        },
+        {
+          "id": "ag_hoje_janta_002",
+          "alunoId": "aluno_002",
+          "data": "2026-04-22",
+          "turno": "janta",
+          "status": "solicitado",
+          "criadoEm": "2026-04-21T10:01:00.000Z"
+        },
+        {
+          "id": "ag_amanha_almoco_002",
+          "alunoId": "aluno_002",
+          "data": "2026-04-23",
+          "turno": "almoco",
+          "status": "solicitado",
+          "criadoEm": "2026-04-22T09:00:00.000Z"
+        },
+        {
+          "id": "ag_29_almoco_002",
+          "alunoId": "aluno_002",
+          "data": "2026-04-29",
+          "turno": "almoco",
+          "status": "consumido",
+          "criadoEm": "2026-04-28T10:00:00.000Z",
+          "consumidoEm": "2026-04-29T12:08:00.000Z"
+        },
+        {
+          "id": "ag_29_janta_002",
+          "alunoId": "aluno_002",
+          "data": "2026-04-29",
+          "turno": "janta",
+          "status": "cancelado",
+          "criadoEm": "2026-04-28T10:01:00.000Z"
+        },
+        {
+          "id": "ag_1777232817304",
+          "alunoId": "aluno_002",
+          "data": "2026-04-30",
+          "turno": "almoco",
+          "status": "cancelado",
+          "criadoEm": "2026-04-26T19:46:57.304Z"
+        },
+        {
+          "id": "ag_1777232819840",
+          "alunoId": "aluno_002",
+          "data": "2026-04-30",
+          "turno": "janta",
+          "status": "solicitado",
+          "criadoEm": "2026-04-26T19:46:59.840Z"
+        },
+        {
+          "id": "ag_1777232822015",
+          "alunoId": "aluno_002",
+          "data": "2026-05-01",
+          "turno": "almoco",
+          "status": "solicitado",
+          "criadoEm": "2026-04-26T19:47:02.015Z"
+        }
+      ],
+      "residente": true
+    },
+    "aluno_003": {
+      "id": "aluno_003",
+      "nome": "Valderi Neto",
+      "usuario": "valderineto",
+      "matricula": "2024009012",
+      "senha": "12345678",
+      "creditos": 110,
+      "totalConsumidas": 200,
+      "streakAtual": 11,
+      "nivel": "Lendário",
+      "qrCode": "RUSMART-QR-aluno_003-2024009012",
+      "saquePendente": 0,
+      "ultimaSugestaoSemana": "2026-W18",
+      "agendamentos": [
+        {
+          "id": "ag_hoje_almoco_003",
+          "alunoId": "aluno_003",
+          "data": "2026-04-22",
+          "turno": "almoco",
+          "status": "consumido",
+          "criadoEm": "2026-04-21T10:00:00.000Z",
+          "consumidoEm": "2026-04-22T12:15:00.000Z"
+        },
+        {
+          "id": "ag_hoje_janta_003",
+          "alunoId": "aluno_003",
+          "data": "2026-04-22",
+          "turno": "janta",
+          "status": "solicitado",
+          "criadoEm": "2026-04-21T10:01:00.000Z"
+        },
+        {
+          "id": "ag_amanha_almoco_003",
+          "alunoId": "aluno_003",
+          "data": "2026-04-23",
+          "turno": "almoco",
+          "status": "solicitado",
+          "criadoEm": "2026-04-22T09:00:00.000Z"
+        },
+        {
+          "id": "ag_amanha_janta_003",
+          "alunoId": "aluno_003",
+          "data": "2026-04-23",
+          "turno": "janta",
+          "status": "solicitado",
+          "criadoEm": "2026-04-22T09:01:00.000Z"
+        },
+        {
+          "id": "ag_29_almoco_003",
+          "alunoId": "aluno_003",
+          "data": "2026-04-29",
+          "turno": "almoco",
+          "status": "solicitado",
+          "criadoEm": "2026-04-28T10:00:00.000Z"
+        },
+        {
+          "id": "ag_29_janta_003",
+          "alunoId": "aluno_003",
+          "data": "2026-04-29",
+          "turno": "janta",
+          "status": "solicitado",
+          "criadoEm": "2026-04-28T10:01:00.000Z"
+        },
+        {
+          "id": "ag_1777138144341",
+          "alunoId": "aluno_003",
+          "data": "2026-04-30",
+          "turno": "almoco",
+          "status": "cancelado",
+          "criadoEm": "2026-04-25T17:29:04.341Z"
+        },
+        {
+          "id": "ag_1777138180372",
+          "alunoId": "aluno_003",
+          "data": "2026-04-30",
+          "turno": "janta",
+          "status": "cancelado",
+          "criadoEm": "2026-04-25T17:29:40.372Z"
+        },
+        {
+          "id": "ag_1777138192336",
+          "alunoId": "aluno_003",
+          "data": "2026-04-30",
+          "turno": "almoco",
+          "status": "cancelado",
+          "criadoEm": "2026-04-25T17:29:52.336Z"
+        },
+        {
+          "id": "ag_1777138576995",
+          "alunoId": "aluno_003",
+          "data": "2026-04-30",
+          "turno": "almoco",
+          "status": "cancelado",
+          "criadoEm": "2026-04-25T17:36:16.995Z"
+        },
+        {
+          "id": "ag_1777138754674",
+          "alunoId": "aluno_003",
+          "data": "2026-04-30",
+          "turno": "almoco",
+          "status": "cancelado",
+          "criadoEm": "2026-04-25T17:39:14.674Z"
+        }
+      ]
+    }
+  },
+  "agendamentos": [
+    {
+      "id": "ag_hoje_almoco_001",
+      "alunoId": "aluno_001",
+      "data": "2026-04-22",
+      "turno": "almoco",
+      "status": "consumido",
+      "criadoEm": "2026-04-21T10:00:00.000Z",
+      "consumidoEm": "2026-04-22T12:05:00.000Z"
+    },
+    {
+      "id": "ag_hoje_janta_001",
+      "alunoId": "aluno_001",
+      "data": "2026-04-22",
+      "turno": "janta",
+      "status": "solicitado",
+      "criadoEm": "2026-04-21T10:01:00.000Z"
+    },
+    {
+      "id": "ag_amanha_almoco_001",
+      "alunoId": "aluno_001",
+      "data": "2026-04-23",
+      "turno": "almoco",
+      "status": "solicitado",
+      "criadoEm": "2026-04-22T09:00:00.000Z"
+    },
+    {
+      "id": "ag_amanha_janta_001",
+      "alunoId": "aluno_001",
+      "data": "2026-04-23",
+      "turno": "janta",
+      "status": "solicitado",
+      "criadoEm": "2026-04-22T09:01:00.000Z"
+    },
+    {
+      "id": "ag_hoje_almoco_002",
+      "alunoId": "aluno_002",
+      "data": "2026-04-22",
+      "turno": "almoco",
+      "status": "consumido",
+      "criadoEm": "2026-04-21T10:00:00.000Z",
+      "consumidoEm": "2026-04-22T12:10:00.000Z"
+    },
+    {
+      "id": "ag_hoje_janta_002",
+      "alunoId": "aluno_002",
+      "data": "2026-04-22",
+      "turno": "janta",
+      "status": "solicitado",
+      "criadoEm": "2026-04-21T10:01:00.000Z"
+    },
+    {
+      "id": "ag_amanha_almoco_002",
+      "alunoId": "aluno_002",
+      "data": "2026-04-23",
+      "turno": "almoco",
+      "status": "solicitado",
+      "criadoEm": "2026-04-22T09:00:00.000Z"
+    },
+    {
+      "id": "ag_hoje_almoco_003",
+      "alunoId": "aluno_003",
+      "data": "2026-04-22",
+      "turno": "almoco",
+      "status": "consumido",
+      "criadoEm": "2026-04-21T10:00:00.000Z",
+      "consumidoEm": "2026-04-22T12:15:00.000Z"
+    },
+    {
+      "id": "ag_hoje_janta_003",
+      "alunoId": "aluno_003",
+      "data": "2026-04-22",
+      "turno": "janta",
+      "status": "solicitado",
+      "criadoEm": "2026-04-21T10:01:00.000Z"
+    },
+    {
+      "id": "ag_amanha_almoco_003",
+      "alunoId": "aluno_003",
+      "data": "2026-04-23",
+      "turno": "almoco",
+      "status": "solicitado",
+      "criadoEm": "2026-04-22T09:00:00.000Z"
+    },
+    {
+      "id": "ag_amanha_janta_003",
+      "alunoId": "aluno_003",
+      "data": "2026-04-23",
+      "turno": "janta",
+      "status": "solicitado",
+      "criadoEm": "2026-04-22T09:01:00.000Z"
+    },
+    {
+      "id": "ag_29_almoco_001",
+      "alunoId": "aluno_001",
+      "data": "2026-04-29",
+      "turno": "almoco",
+      "status": "consumido",
+      "criadoEm": "2026-04-28T10:00:00.000Z",
+      "consumidoEm": "2026-04-29T12:05:00.000Z"
+    },
+    {
+      "id": "ag_29_janta_001",
+      "alunoId": "aluno_001",
+      "data": "2026-04-29",
+      "turno": "janta",
+      "status": "cancelado",
+      "criadoEm": "2026-04-28T10:01:00.000Z"
+    },
+    {
+      "id": "ag_29_almoco_002",
+      "alunoId": "aluno_002",
+      "data": "2026-04-29",
+      "turno": "almoco",
+      "status": "consumido",
+      "criadoEm": "2026-04-28T10:00:00.000Z",
+      "consumidoEm": "2026-04-29T12:08:00.000Z"
+    },
+    {
+      "id": "ag_29_janta_002",
+      "alunoId": "aluno_002",
+      "data": "2026-04-29",
+      "turno": "janta",
+      "status": "cancelado",
+      "criadoEm": "2026-04-28T10:01:00.000Z"
+    },
+    {
+      "id": "ag_29_almoco_003",
+      "alunoId": "aluno_003",
+      "data": "2026-04-29",
+      "turno": "almoco",
+      "status": "solicitado",
+      "criadoEm": "2026-04-28T10:00:00.000Z"
+    },
+    {
+      "id": "ag_29_janta_003",
+      "alunoId": "aluno_003",
+      "data": "2026-04-29",
+      "turno": "janta",
+      "status": "solicitado",
+      "criadoEm": "2026-04-28T10:01:00.000Z"
+    },
+    {
+      "id": "ag_1777138144341",
+      "alunoId": "aluno_003",
+      "data": "2026-04-30",
+      "turno": "almoco",
+      "status": "cancelado",
+      "criadoEm": "2026-04-25T17:29:04.341Z"
+    },
+    {
+      "id": "ag_1777138180372",
+      "alunoId": "aluno_003",
+      "data": "2026-04-30",
+      "turno": "janta",
+      "status": "cancelado",
+      "criadoEm": "2026-04-25T17:29:40.372Z"
+    },
+    {
+      "id": "ag_1777138192336",
+      "alunoId": "aluno_003",
+      "data": "2026-04-30",
+      "turno": "almoco",
+      "status": "cancelado",
+      "criadoEm": "2026-04-25T17:29:52.336Z"
+    },
+    {
+      "id": "ag_1777138576995",
+      "alunoId": "aluno_003",
+      "data": "2026-04-30",
+      "turno": "almoco",
+      "status": "cancelado",
+      "criadoEm": "2026-04-25T17:36:16.995Z"
+    },
+    {
+      "id": "ag_1777138754674",
+      "alunoId": "aluno_003",
+      "data": "2026-04-30",
+      "turno": "almoco",
+      "status": "cancelado",
+      "criadoEm": "2026-04-25T17:39:14.674Z"
+    },
+    {
+      "id": "ag_1777232288719",
+      "alunoId": "aluno_001",
+      "data": "2026-04-30",
+      "turno": "almoco",
+      "status": "cancelado",
+      "criadoEm": "2026-04-26T19:38:08.719Z"
+    },
+    {
+      "id": "ag_1777232291340",
+      "alunoId": "aluno_001",
+      "data": "2026-04-30",
+      "turno": "janta",
+      "status": "cancelado",
+      "criadoEm": "2026-04-26T19:38:11.340Z"
+    },
+    {
+      "id": "ag_1777232817304",
+      "alunoId": "aluno_002",
+      "data": "2026-04-30",
+      "turno": "almoco",
+      "status": "cancelado",
+      "criadoEm": "2026-04-26T19:46:57.304Z"
+    },
+    {
+      "id": "ag_1777232819840",
+      "alunoId": "aluno_002",
+      "data": "2026-04-30",
+      "turno": "janta",
+      "status": "solicitado",
+      "criadoEm": "2026-04-26T19:46:59.840Z"
+    },
+    {
+      "id": "ag_1777232822015",
+      "alunoId": "aluno_002",
+      "data": "2026-05-01",
+      "turno": "almoco",
+      "status": "solicitado",
+      "criadoEm": "2026-04-26T19:47:02.015Z"
+    }
+  ],
+  "cubas": {
+    "cuba_1": {
+      "id": "cuba_1",
+      "nome": "Cuba Grande 1",
+      "tipo": "grande",
+      "faixas": 6,
+      "descricao": "Arroz/Feijão",
+      "ultimaAtualizacao": "2026-04-29T11:59:38.988Z",
+      "distanciaCm": 14.37
+    },
+    "cuba_2": {
+      "id": "cuba_2",
+      "nome": "Cuba Grande 2",
+      "tipo": "grande",
+      "faixas": 5,
+      "descricao": "Proteína Principal"
+    },
+    "cuba_3": {
+      "id": "cuba_3",
+      "nome": "Cuba Pequena 1",
+      "tipo": "pequena",
+      "faixas": 3,
+      "descricao": "Salada/Acompanhamento"
+    },
+    "cuba_4": {
+      "id": "cuba_4",
+      "nome": "Cuba Pequena 2",
+      "tipo": "pequena",
+      "faixas": 10,
+      "descricao": "Sobremesa"
+    }
+  },
+  "metricas": {
+    "almocosHoje": 3,
+    "jantasHoje": 1,
+    "almocosConsumidosHoje": 2,
+    "jantasConsumidosHoje": 0
+  },
+  "historicoSemanal": [
+    {
+      "data": "2026-03-31",
+      "diaSemana": "Terça",
+      "almocos": 16,
+      "jantas": 8,
+      "almocosConsumidos": 14,
+      "jantasConsumidas": 6
+    },
+    {
+      "data": "2026-04-01",
+      "diaSemana": "Quarta",
+      "almocos": 21,
+      "jantas": 11,
+      "almocosConsumidos": 18,
+      "jantasConsumidas": 9
+    },
+    {
+      "data": "2026-04-02",
+      "diaSemana": "Quinta",
+      "almocos": 19,
+      "jantas": 13,
+      "almocosConsumidos": 17,
+      "jantasConsumidas": 11
+    },
+    {
+      "data": "2026-04-03",
+      "diaSemana": "Sexta",
+      "almocos": 24,
+      "jantas": 7,
+      "almocosConsumidos": 22,
+      "jantasConsumidas": 6
+    },
+    {
+      "data": "2026-04-05",
+      "diaSemana": "Domingo",
+      "almocos": 0,
+      "jantas": 0,
+      "almocosConsumidos": 0,
+      "jantasConsumidas": 0
+    },
+    {
+      "data": "2026-04-06",
+      "diaSemana": "Segunda",
+      "almocos": 17,
+      "jantas": 14,
+      "almocosConsumidos": 15,
+      "jantasConsumidas": 12
+    },
+    {
+      "data": "2026-04-07",
+      "diaSemana": "Terça",
+      "almocos": 20,
+      "jantas": 10,
+      "almocosConsumidos": 19,
+      "jantasConsumidas": 8
+    },
+    {
+      "data": "2026-04-08",
+      "diaSemana": "Quarta",
+      "almocos": 23,
+      "jantas": 9,
+      "almocosConsumidos": 20,
+      "jantasConsumidas": 7
+    },
+    {
+      "data": "2026-04-09",
+      "diaSemana": "Quinta",
+      "almocos": 18,
+      "jantas": 12,
+      "almocosConsumidos": 16,
+      "jantasConsumidas": 10
+    },
+    {
+      "data": "2026-04-10",
+      "diaSemana": "Sexta",
+      "almocos": 26,
+      "jantas": 6,
+      "almocosConsumidos": 24,
+      "jantasConsumidas": 5
+    },
+    {
+      "data": "2026-04-12",
+      "diaSemana": "Domingo",
+      "almocos": 0,
+      "jantas": 0,
+      "almocosConsumidos": 0,
+      "jantasConsumidas": 0
+    },
+    {
+      "data": "2026-04-13",
+      "diaSemana": "Segunda",
+      "almocos": 15,
+      "jantas": 16,
+      "almocosConsumidos": 13,
+      "jantasConsumidas": 14
+    },
+    {
+      "data": "2026-04-14",
+      "diaSemana": "Terça",
+      "almocos": 22,
+      "jantas": 11,
+      "almocosConsumidos": 20,
+      "jantasConsumidas": 9
+    },
+    {
+      "data": "2026-04-15",
+      "diaSemana": "Quarta",
+      "almocos": 22,
+      "jantas": 9,
+      "almocosConsumidos": 20,
+      "jantasConsumidas": 8
+    },
+    {
+      "data": "2026-04-16",
+      "diaSemana": "Quinta",
+      "almocos": 20,
+      "jantas": 14,
+      "almocosConsumidos": 18,
+      "jantasConsumidas": 13
+    },
+    {
+      "data": "2026-04-17",
+      "diaSemana": "Sexta",
+      "almocos": 25,
+      "jantas": 7,
+      "almocosConsumidos": 23,
+      "jantasConsumidas": 6
+    },
+    {
+      "data": "2026-04-18",
+      "diaSemana": "Sábado",
+      "almocos": 11,
+      "jantas": 0,
+      "almocosConsumidos": 9,
+      "jantasConsumidas": 0
+    },
+    {
+      "data": "2026-04-20",
+      "diaSemana": "Segunda",
+      "almocos": 19,
+      "jantas": 16,
+      "almocosConsumidos": 17,
+      "jantasConsumidas": 15
+    },
+    {
+      "data": "2026-04-21",
+      "diaSemana": "Terça",
+      "almocos": 18,
+      "jantas": 12,
+      "almocosConsumidos": 16,
+      "jantasConsumidas": 11
+    },
+    {
+      "data": "2026-04-22",
+      "diaSemana": "Quarta",
+      "almocos": 3,
+      "jantas": 0,
+      "almocosConsumidos": 1,
+      "jantasConsumidas": 0
+    },
+    {
+      "data": "2026-04-23",
+      "diaSemana": "Quinta",
+      "almocos": 21,
+      "jantas": 13,
+      "almocosConsumidos": 19,
+      "jantasConsumidas": 11
+    },
+    {
+      "data": "2026-04-24",
+      "diaSemana": "Sexta",
+      "almocos": 24,
+      "jantas": 8,
+      "almocosConsumidos": 22,
+      "jantasConsumidas": 7
+    },
+    {
+      "data": "2026-04-25",
+      "diaSemana": "Sábado",
+      "almocos": 12,
+      "jantas": 0,
+      "almocosConsumidos": 11,
+      "jantasConsumidas": 0
+    },
+    {
+      "data": "2026-04-27",
+      "diaSemana": "Segunda",
+      "almocos": 18,
+      "jantas": 15,
+      "almocosConsumidos": 16,
+      "jantasConsumidas": 13
+    },
+    {
+      "data": "2026-04-28",
+      "diaSemana": "Terça",
+      "almocos": 20,
+      "jantas": 11,
+      "almocosConsumidos": 18,
+      "jantasConsumidas": 9
+    },
+    {
+      "data": "2026-04-29",
+      "diaSemana": "Quarta",
+      "almocos": 3,
+      "jantas": 3,
+      "almocosConsumidos": 2,
+      "jantasConsumidas": 0
+    }
+  ],
+  "cardapio": {
+    "2026-04-22": {
+      "almoco": {
+        "principal": "Frango grelhado ao limão",
+        "guarnicao": "Macarrão ao sugo",
+        "acompanhamento": "Arroz branco, Feijão carioca",
+        "salada": "Alface, tomate e cenoura ralada",
+        "sobremesa": "Pudim de leite"
+      },
+      "janta": {
+        "principal": "Omelete de queijo e presunto",
+        "guarnicao": "Purê de batata",
+        "acompanhamento": "Arroz branco, Feijão preto",
+        "salada": "Pepino e rúcula",
+        "sobremesa": "Banana"
+      }
+    },
+    "2026-04-23": {
+      "almoco": {
+        "principal": "Pao panhosono",
+        "guarnicao": "pao",
+        "acompanhamento": "pao paozinho",
+        "salada": "pao verde",
+        "sobremesa": "pao doce"
+      },
+      "janta": {
+        "principal": "Peixe cozido com legumes",
+        "guarnicao": "Batata cozida",
+        "acompanhamento": "Arroz branco, Lentilha",
+        "salada": "Agrião e beterraba",
+        "sobremesa": "Laranja"
+      }
+    },
+    "2026-04-24": {
+      "almoco": {
+        "principal": "Frango à parmegiana",
+        "guarnicao": "Espaguete ao alho e óleo",
+        "acompanhamento": "Arroz branco, Feijão tropeiro",
+        "salada": "Alface americana e pepino",
+        "sobremesa": "Mousse de maracujá"
+      },
+      "janta": {
+        "principal": "Carne moída refogada",
+        "guarnicao": "Mandioca cozida",
+        "acompanhamento": "Arroz branco, Feijão preto",
+        "salada": "Couve e cenoura",
+        "sobremesa": "Maçã"
+      }
+    },
+    "2026-04-25": {
+      "almoco": {
+        "principal": "Lombo suíno ao molho de laranja",
+        "guarnicao": "Arroz à grega",
+        "acompanhamento": "Feijão carioca",
+        "salada": "Mix de folhas e tomate",
+        "sobremesa": "Creme de abacaxi"
+      }
+    },
+    "2026-04-27": {
+      "almoco": {
+        "principal": "Frango ensopado",
+        "guarnicao": "Polenta grelhada",
+        "acompanhamento": "Arroz branco, Feijão carioca",
+        "salada": "Alface e tomate",
+        "sobremesa": "Doce de leite com biscoito"
+      },
+      "janta": {
+        "principal": "Tilápia grelhada",
+        "guarnicao": "Cuscuz de milho",
+        "acompanhamento": "Arroz branco, Feijão preto",
+        "salada": "Rúcula e palmito",
+        "sobremesa": "Melancia"
+      }
+    },
+    "2026-04-28": {
+      "almoco": {
+        "principal": "Bife acebolado",
+        "guarnicao": "Macarrão parafuso ao molho branco",
+        "acompanhamento": "Arroz branco, Feijão carioca",
+        "salada": "Alface e cenoura ralada",
+        "sobremesa": "Pudim de coco"
+      },
+      "janta": {
+        "principal": "Frango xadrez",
+        "guarnicao": "Arroz frito com legumes",
+        "acompanhamento": "Feijão carioca",
+        "salada": "Pepino e beterraba",
+        "sobremesa": "Goiaba"
+      }
+    },
+    "2026-04-29": {
+      "almoco": {
+        "principal": "Carne de panela",
+        "guarnicao": "Farofa de ovos",
+        "acompanhamento": "Arroz branco, Feijão tropeiro",
+        "salada": "Alface, tomate e rabanete",
+        "sobremesa": "Sorvete de creme"
+      },
+      "janta": {
+        "principal": "Omelete de legumes",
+        "guarnicao": "Batata doce assada",
+        "acompanhamento": "Arroz integral, Feijão preto",
+        "salada": "Agrião e tomate",
+        "sobremesa": "Pera"
+      }
+    },
+    "2026-04-30": {
+      "almoco": {
+        "principal": "boi",
+        "guarnicao": "boi",
+        "acompanhamento": "boi",
+        "salada": "boi",
+        "sobremesa": "boi"
+      }
+    }
+  },
+  "enquetes": [
+    {
+      "id": "enquete_001",
+      "titulo": "Qual proteína você quer na próxima semana?",
+      "status": "ativa",
+      "criadoPor": "admin",
+      "opcoes": [
+        {
+          "id": "op1",
+          "texto": "Frango assado",
+          "votos": 16
+        },
+        {
+          "id": "op2",
+          "texto": "Peixe grelhado",
+          "votos": 5
+        },
+        {
+          "id": "op3",
+          "texto": "Carne bovina",
+          "votos": 12
+        }
+      ],
+      "votantes": [
+        "aluno_003",
+        "aluno_002"
+      ]
+    },
+    {
+      "id": "enquete_1777463809893",
+      "titulo": "qual a proteina no dia 01 de maio",
+      "status": "ativa",
+      "criadoPor": "admin",
+      "opcoes": [
+        {
+          "id": "op1",
+          "texto": "BOI ASSADO",
+          "votos": 3
+        },
+        {
+          "id": "op2",
+          "texto": "PORCO ASSADO",
+          "votos": 0
+        },
+        {
+          "id": "op3",
+          "texto": "FRANGO ASSADO",
+          "votos": 0
+        }
+      ],
+      "votantes": [
+        "aluno_002"
+      ]
+    }
+  ],
+  "sugestoes": [
+    {
+      "id": "sug_1777463885359",
+      "alunoId": "aluno_003",
+      "nomeAluno": "Valderi Neto",
+      "texto": "Buchada",
+      "criadoEm": "2026-04-29T11:58:05.359Z",
+      "semana": "2026-W18"
+    }
+  ],
+  "saquesAdm": []
+}
